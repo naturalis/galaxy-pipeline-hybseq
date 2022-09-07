@@ -1,5 +1,4 @@
 # galaxy-pipeline-hybseq
-End-to-end implementation of HybSeq analysis in Naturalis's Galaxy portal
 
 HybSeq is a data generation technique that constitutes a hybrid between shotgun high-throughput sequencing
 and amplicon sequencing. The technique results in markers suitable for phylogenomics (because they are 
