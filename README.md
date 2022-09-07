@@ -9,7 +9,7 @@ sequencing results in multiplexed FASTQ data that both needs to be demultiplexed
 as well as sorted by the various baits. The ideal end result is a set of as many multiple sequence alignments
 (MSAs) as there were baits, each containing as many rows as there were species, as the input for a multi-marker
 phylogenetic analysis yielding a robust tree. In this repository, the artefacts are developed to achieve
-this ideal end state. The repository draws on the following prior art:
+this ideal end state. The repository is inspired by the following prior art:
 
 - [Nikolov et al., 2019](https://doi.org/10.1111/nph.15732) - a seminal paper describing how to resolve 
   the phylogenetic backbone of the Brassicaceae using HybSeq. The paper describes an informal reference
@@ -21,14 +21,17 @@ this ideal end state. The repository draws on the following prior art:
   snakemake pipeline to Galaxy. Many of the tools used by Nikolov et al. are already available in Galaxy's
   package management system (the 'tool shed') but some are missing. This repo attempts to wrap those missing
   tools, especially YASRA.
+- [HybPiper](https://bsapubs.onlinelibrary.wiley.com/doi/10.3732/apps.1600016) - a more current HybSeq
+  pipeline. It is very possible that this is preferable over the Nikolov et al. pipeline. This needs to be
+  investigated.
 - [Naturalis Galaxy Portal](https://galaxy.naturalis.nl/), a local install of the Galaxy workflow management
   system. This is where the wrappers for the different pipeline steps will be deployed eventually. The 
   portal is administered by Dick Groenenberg.
   
 # Goals
 
-- Ability to stage HybSeq data from SRA into the Galaxy portal
-- Implementation of all steps from Nikolov/Snakemake as Galaxy tools, where needed as wrappers and scripts
+- Ability to stage HybSeq data (from SRA?) into the Galaxy portal
+- Implementation of all steps of a HybSeq pipeline as Galaxy tools, where needed as wrappers and scripts
   deposited in this repository
 - A Galaxy [workflow](https://galaxyproject.org/learn/advanced-workflow/) that chains all tools with 
   sensible defaults
