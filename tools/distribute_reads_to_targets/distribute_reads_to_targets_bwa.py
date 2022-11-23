@@ -1,28 +1,35 @@
 #!/usr/bin/env python
 
 '''
-Edited by Jeremy van Veen for Naturalis for use in Galaxy
-Version 1.3.2
+Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
+Original Author: https://github.com/mossmatters
+Version 1.3.7
 
-Use: python3 distribute_reads_to_targets_bwa.py
--b Galaxy82-[Merged_BAM].bam -r test_dataset/test_reads.fastq/EG30_test
+Usage:
+-------------------
+python3 distribute_reads_to_targets_bwa.py -b path_to_bamfile -r
+raw_reads_folder_path
+
+python3 distribute_reads_to_targets_bwa.py -b Galaxy82-[Merged_BAM].bam -r test_dataset/test_reads.fastq/EG30_test
+
+Description:
+----------------
+This script is part of a pipeline to extract phylogenetically-useful
+sequences from Illumina data using the targeted (liquid-phase) sequence
+enrichment approach.
+
+After a BWA search of the raw reads against the target sequences,
+the reads need to be sorted according to the successful hits.
+This script takes the BWA output (BAM format) and the raw read files,
+and distributes the reads into FASTA files ready for assembly.
+
+If there are multiple results (for example, one for each read direction),
+concatenate them prior to sorting.
 '''
 
 import sys, os, errno, subprocess, re, argparse
 from Bio import SeqIO
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
-
-"""
-This script is part of a pipeline to extract phylogenetically-useful sequences from 
-Illumina data using the targeted (liquid-phase) sequence enrichment approach.
-
-After a BWA search of the raw reads against the target sequences, the reads need to be 
-sorted according to the successful hits. This script takes the BWA output (BAM format)
-and the raw read files, and distributes the reads into FASTA files ready for assembly.
-
-If there are multiple results (for example, one for each read direction),
-concatenate them prior to sorting.
-"""
 
 def get_filenames(directory):
     """Iterates through a specified directory and returns a list with
@@ -52,6 +59,13 @@ def get_filenames(directory):
     return filenames
 
 def mkdir_p(path):
+    """Attempts to create output directories if possible.
+
+            Parameters
+            ----------
+            path : str
+                The path to the output directory
+            """
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
@@ -62,6 +76,20 @@ def mkdir_p(path):
 
 
 def read_sorting(bamfilename):
+    """uses samtools to read the BAMfile and sort the reads to the targets
+    then updates a dictionary for each hit.
+
+        Parameters
+        ----------
+        bamfilename : str
+            a string with the name of the bamfile
+
+        Returns
+        -------
+        read_hit_dict : dictionary
+            a dictionary containing the read hits towards the target
+            sequences in the BAM file
+        """
     samtools_cmd = "samtools view -F 4 {}".format(bamfilename)
     child = subprocess.Popen(samtools_cmd, shell=True, stdout=subprocess.PIPE,
                              universal_newlines=True)
@@ -81,6 +109,24 @@ def read_sorting(bamfilename):
 
 
 def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
+    """Writes results towards the output fasta files
+
+            Parameters
+            ----------
+            target : str
+                a string containing the output path
+            ID1 : str
+                a string containing ID 1
+            ID2 : str
+                a string containing ID 2
+            Seq1 : str
+                a string containing sequence1
+            Seq2 : str
+                a string containing sequence2
+            single : bool, optional
+                boolean to specify whether the reads are single-end or paired
+                (default=True)
+            """
     mkdir_p(target)
     if single:
         outfile = open(
@@ -98,7 +144,17 @@ def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
 
 
 def write_single_seqs(target, ID1, Seq1):
-    """Distributing targets from single-end sequencing"""
+    """Distributing targets from single-end sequencing
+
+               Parameters
+               ----------
+               target : str
+                   a string containing the output path
+               ID1 : str
+                   a string containing ID 1
+               Seq1 : str
+                   a string containing sequence1
+               """
     mkdir_p(target)
     outfile = open(os.path.join(target, "{}_unpaired.fasta".format(target)),
                    'a')
@@ -107,10 +163,24 @@ def write_single_seqs(target, ID1, Seq1):
 
 
 def distribute_reads(readfile, read_hit_dict, single=True):
+    """uses samtools to read the BAMfile and sort the reads to the targets
+        then updates a dictionary for each hit.
+
+            Parameters
+            ----------
+            readfile : str
+                path to the read folder
+            read_hit_dict : dictionary
+                a dictionary containing the hits from the target function
+            singe : bool, optional
+                a boolean indicating whether the reads are single-end
+                or paired (default=True)
+            """
     filenames = get_filenames(readfile)
     num_reads_to_write = len(read_hit_dict)
     if num_reads_to_write != 0:
-        iterator1 = FastqGeneralIterator(open("".join([readfile, '/', filenames[0]])))
+        iterator1 = FastqGeneralIterator(open("".join([readfile, '/',
+                                                       filenames[0]])))
         reads_written = 0
         sys.stderr.write("Read distributing progress:\n")
 
@@ -126,13 +196,15 @@ def distribute_reads(readfile, read_hit_dict, single=True):
                 j = (reads_written + 1) / num_reads_to_write
                 if int(100 * j) % 5 == 0:
                     sys.stderr.write("\r")
-                    sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j), 100 * j))
+                    sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j),
+                                                       100 * j))
                     sys.stderr.flush()
             sys.stderr.write("\n")
             return
 
         elif len(filenames) == 2:
-            iterator2 = FastqGeneralIterator(open("".join([readfile, '/', filenames[1]])))
+            iterator2 = FastqGeneralIterator(open("".join([readfile, '/',
+                                                           filenames[1]])))
 
         for ID1_long, Seq1, Qual1 in iterator1:
 
