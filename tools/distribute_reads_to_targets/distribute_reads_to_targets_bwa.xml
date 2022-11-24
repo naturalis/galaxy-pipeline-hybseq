@@ -1,0 +1,50 @@
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.3.7">
+    <!--><description>
+        After a BWA search of the raw reads against the target sequences,
+        the reads need to be sorted according to the successful hits.
+        This script takes the BWA output (BAM format) and the raw read files,
+        and distributes the reads into FASTA files ready for assembly.
+    </description>-->
+    <requirements>
+        <requirement type="package" version="3.7.6">python</requirement>
+        <requirement type="package" version="1.78">Biopython</requirement>
+        <requirement type="package" version="1.7">samtools</requirement>
+    </requirements>
+    <!-- Call the distribute_reads_to_targets script,
+           set input parameters according to user choices. -->
+    <command><![CDATA[
+        bash "$__tool_directory__/getUmiIsolation.sh" -o ${bam_file}
+                                                      -z ${read_folder}
+                                                      -q ${output_zip}
+    ]]></command>
+    <inputs>
+        <!-- Catch the input file. -->
+        <param name="bam_file" type="data" format="bam" label="BWA BAM file" />
+        <param name="read_folder" type="data" format="fastq" label="FASTQ files" />
+    </inputs>
+    <outputs>
+        <!-- Catch the output file. -->
+        <data format="zip" name="output_zip" label="Distributed reads.zip">
+        </data>
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+        .. class:: infomark
+
+        Use a python script to take the BWA output (BAM format)
+        and the raw read files, and then distribute the reads into FASTA files
+        ready for assembly.
+
+        .. class:: infomark
+
+        The zip file will contain folders with sorted fasta files for
+        each gene that the script could find hits for.
+
+        .. class:: warningmark
+
+        If there are multiple results (for example, one for each read direction),
+        concatenate them prior to sorting.
+
+    </help>
+</tool>
