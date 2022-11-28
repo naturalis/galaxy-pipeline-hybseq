@@ -3,14 +3,14 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.3.7
+Version 1.4.0
 
 Usage:
 -------------------
 python3 distribute_reads_to_targets_bwa.py -b path_to_bamfile -r
 raw_reads_folder_path
 
-python3 distribute_reads_to_targets_bwa.py -b Galaxy82-[Merged_BAM].bam -r test_dataset/test_reads.fastq/EG30_test
+python3 distribute_reads_to_targets_bwa.py -b Galaxy82-[Merged_BAM].bam -r backup
 
 Description:
 ----------------
@@ -25,13 +25,17 @@ and distributes the reads into FASTA files ready for assembly.
 
 If there are multiple results (for example, one for each read direction),
 concatenate them prior to sorting.
+
+Notes:
+    Currently only tested with paired data, implementation for unpaired
+    requires a slight amount of modification in the future.
 '''
 
 import sys, os, errno, subprocess, re, argparse
 from Bio import SeqIO
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 
-def get_filenames(directory):
+def getFilenames(directory):
     """Iterates through a specified directory and returns a list with
     the file names.
 
@@ -55,8 +59,9 @@ def get_filenames(directory):
         if os.path.isfile(file):
             file = file.replace('/', "\\")
             filenames_list = file.split("\\")
-            filenames.append(filenames_list[3])
+            filenames.append(filenames_list[-1:][0])
     return filenames
+
 
 def mkdir_p(path):
     """Attempts to create output directories if possible.
@@ -162,7 +167,7 @@ def write_single_seqs(target, ID1, Seq1):
     outfile.close()
 
 
-def distribute_reads(readfile, read_hit_dict, single=True):
+def distribute_reads(readfile, pair_list, read_hit_dict, single=True):
     """uses samtools to read the BAMfile and sort the reads to the targets
         then updates a dictionary for each hit.
 
@@ -176,7 +181,7 @@ def distribute_reads(readfile, read_hit_dict, single=True):
                 a boolean indicating whether the reads are single-end
                 or paired (default=True)
             """
-    filenames = get_filenames(readfile)
+    filenames = pair_list
     num_reads_to_write = len(read_hit_dict)
     if num_reads_to_write != 0:
         iterator1 = FastqGeneralIterator(open("".join([readfile, '/',
@@ -244,7 +249,7 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.3.2")
+                        version="distribute_reads_to_targets_bwa 1.4.0")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)
@@ -254,16 +259,62 @@ def parseArgvs():
     argvs = parser.parse_args()
     return argvs
 
+## Scrapped Function
+# def getSampleNames(filenames):
+#     samplenames_list, pair_dict = [], {}
+#     for filename in filenames:
+#         part_index = 0
+#         filename_parts = filename.split("_")
+#         if "R1" in filename_parts:
+#             part_index = filename_parts.index("R1")
+#         elif "R2" in filename_parts:
+#             part_index = filename_parts.index("R2")
+#         samplename = filename_parts[:part_index][0]
+#         samplenames_list.append(samplename)
+
+
+def makePairs(filenames):
+    """Receives the list of filenames created by getFilenames and pairs them
+    together in a list made of tuples.
+
+           Parameters
+           ----------
+           filenames : list
+               list with all filenames from the input read directory as
+               strings
+
+           Returns
+           -------
+           pair_list : list
+               a list containing pairs of readfile names as tuples.
+           None
+               in case of uneven number of reads in input file
+           """
+    if len(filenames) % 2 == 0:
+        pair_list = []
+        filenames_forward = filenames[0::2]
+        filenames_reverse = filenames[1::2]
+        for counter in range(len(filenames_forward)):
+            pair = (filenames_forward[counter], filenames_reverse[counter])
+            pair_list.append(pair)
+        return pair_list
+    else:
+        print("File contains an uneven number of reads, "
+              "unable to create pairs. Return None")
+        return None
+
 
 def main():
     argvs = parseArgvs()
     bamfilename = argvs.bamfile
-    readfile = argvs.readfile
-    # print(bamfilename, readfile)
+    read_zip_file = argvs.readfile
+    filenames = getFilenames(read_zip_file)
+    pair_list = makePairs(filenames)
+
     read_hit_dict = read_sorting(bamfilename)
-    print(read_hit_dict)
     print("Unique reads with hits: {}".format(len(read_hit_dict)))
-    distribute_reads(readfile, read_hit_dict, single=True)
+    for pair in pair_list:
+        distribute_reads(read_zip_file, pair, read_hit_dict, single=True)
 
 
 if __name__ == "__main__": main()

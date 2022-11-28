@@ -5,7 +5,7 @@ printf "Conda env: $CONDA_DEFAULT_ENV\n"
 printf "Python version: $(python --version |  awk '{print $2}')\n"
 printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
 printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
-#printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
+printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
 printf "Bash version: ${BASH_VERSION}\n\n"
 
 # The runDistributeToTargets function calls the python script, which,
@@ -18,7 +18,7 @@ runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
     strDirectory=$(mktemp -d /data/files/XXXXXX)
     mkdir -p "${strDirectory}_temp"
-    python3 $strScriptDir"/getUmiIsolation.py" -b ${bamfile} \
+    python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${readfolder}
     cp gene* ${strDirectory}_temp/geneTempZip.zip
     rm -rf gene*
@@ -45,7 +45,7 @@ while getopts ":b:r:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.3.7]"
+            echo "distribute_reads_to_targets_bwa.sh [1.4.0]"
             echo ""
 
             exit
