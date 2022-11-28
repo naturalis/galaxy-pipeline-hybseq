@@ -16,14 +16,12 @@ printf "Bash version: ${BASH_VERSION}\n\n"
 
 runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
-    strDirectory=$(mktemp -d /data/files/XXXXXX)
+    strDirectory=$(mktemp -d)
     mkdir -p "${strDirectory}_temp"
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${readfolder}
-    cp gene* ${strDirectory}_temp/geneTempZip.zip
+    zip -r ${strScriptDir}/${outputzip} gene*
     rm -rf gene*
-    cat ${strDirectory}_temp/geneTempZip.zip > ${outputZip}
-    rm -rf ${strDirectory}_temp
 }
 
 # The main function.
