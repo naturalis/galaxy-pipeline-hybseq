@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # sanity check
-printf "Conda env: $CONDA_DEFAULT_ENV\n"
-printf "Python version: $(python --version |  awk '{print $2}')\n"
-printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
-printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
-printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
-printf "Bash version: ${BASH_VERSION}\n\n"
+#printf "Conda env: $CONDA_DEFAULT_ENV\n"
+#printf "Python version: $(python --version |  awk '{print $2}')\n"
+#printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
+#printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
+#printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
+#printf "Bash version: ${BASH_VERSION}\n\n"
 
 # The runDistributeToTargets function calls the python script, which,
 # after a BWA search against the target sequences, sorts the hits
@@ -18,10 +18,15 @@ runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
     strDirectory=$(mktemp -d)
     mkdir -p "${strDirectory}_temp"
+    unzip ${strScriptDir}/${readfolder} -d ${strScriptDir}/packed_reads
+    unzip ${strScriptDir}/packed_reads"/*.zip" -d ${strScriptDir}/raw_reads
+    rm -rf packed_reads
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
-                                               -r ${readfolder}
+                                               -r $strScriptDir/raw_reads
     zip -r ${strScriptDir}/${outputzip} gene*
     rm -rf gene*
+    rm -rf raw_reads
+
 }
 
 # The main function.
@@ -39,7 +44,7 @@ while getopts ":b:r:o:vh" opt; do
             readfolder=${OPTARG}
             ;;
         o)
-            outputZip=${OPTARG}
+            outputzip=${OPTARG}
             ;;
         v)
             echo ""
