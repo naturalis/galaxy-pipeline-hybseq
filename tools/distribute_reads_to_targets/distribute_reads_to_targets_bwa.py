@@ -3,7 +3,7 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.4.0
+Version 1.5.0
 
 Usage:
 -------------------
@@ -132,17 +132,18 @@ def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
                 boolean to specify whether the reads are single-end or paired
                 (default=True)
             """
-    mkdir_p(target)
+    path = "fastafiles/"
+    mkdir_p(path)
     if single:
         outfile = open(
-            os.path.join(target, "{}_interleaved.fasta".format(target)), 'a')
+            os.path.join(path, "{}_interleaved.fasta".format(target)), 'a')
         outfile.write(">{}\n{}\n".format(ID1, Seq1))
         outfile.write(">{}\n{}\n".format(ID2, Seq2))
         outfile.close()
     else:
-        outfile1 = open(os.path.join(target, "{}_1.fasta".format(target)), 'a')
+        outfile1 = open(os.path.join(path, "{}_1.fasta".format(target)), 'a')
         outfile1.write(">{}\n{}\n".format(ID1, Seq1))
-        outfile2 = open(os.path.join(target, "{}_2.fasta".format(target)), 'a')
+        outfile2 = open(os.path.join(path, "{}_2.fasta".format(target)), 'a')
         outfile2.write(">{}\n{}\n".format(ID2, Seq2))
         outfile1.close()
         outfile2.close()
@@ -160,8 +161,9 @@ def write_single_seqs(target, ID1, Seq1):
                Seq1 : str
                    a string containing sequence1
                """
-    mkdir_p(target)
-    outfile = open(os.path.join(target, "{}_unpaired.fasta".format(target)),
+    path = "fastafiles/"
+    mkdir_p(path)
+    outfile = open(os.path.join(path, "{}_unpaired.fasta".format(target)),
                    'a')
     outfile.write(">{}\n{}\n".format(ID1, Seq1))
     outfile.close()
@@ -249,7 +251,7 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.4.0")
+                        version="distribute_reads_to_targets_bwa 1.5.0")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)

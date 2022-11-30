@@ -1,4 +1,4 @@
-<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.3.7">
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.5.0">
     <!--><description>
         After a BWA search of the raw reads against the target sequences,
         the reads need to be sorted according to the successful hits.
@@ -21,11 +21,11 @@
     <inputs>
         <!-- Catch the input file. -->
         <param name="bam_file" type="data" format="bam" label="BWA BAM file" />
-        <param name="read_folder" type="data" format="fastq" label="FASTQ files" />
+        <param name="read_zip" type="data" format="zip" label="Read files" />
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
-        <data format="zip" name="output_zip" label="Distributed_reads.zip">
+        <data format="zip" name="output_zip" label="Distributed Reads">
         </data>
     </outputs>
     <tests>
