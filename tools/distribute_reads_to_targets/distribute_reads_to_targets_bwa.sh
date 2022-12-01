@@ -18,21 +18,23 @@ printf "Bash version: ${BASH_VERSION}\n\n"
 
 runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
-    strDirectory=$(mktemp -d)
-    mkdir -p "${strDirectory}/merged_reads"
-    unzip ${strScriptDir}/${readfolder} -d ${strDirectory}/packed_reads
-    unzip ${strDirectory}/packed_reads"/*.zip" -d ${strDirectory}/raw_reads
-    cat ${strDirectory}/raw_reads/*R1*.fastq > ${strDirectory}/merged_reads/merged_R1.fastq
-    cat ${strDirectory}/raw_reads/*R2*.fastq > ${strDirectory}/merged_reads/merged_R2.fastq
+    strDirectory=$(mktemp -d /data/files/XXXXXX) # /media/GalaxyData/database/files/XXXXXX
+
+    mkdir -p "${strDirectory}_temp"
+    mkdir -p "${strDirectory}_temp/merged_reads"
+    unzip ${readfolder} -d ${strDirectory}_temp/packed_reads
+    unzip ${strDirectory}_temp/packed_reads"/*.zip" -d ${strDirectory}_temp/raw_reads
+    cat ${strDirectory}_temp/raw_reads/*R1*.fastq > ${strDirectory}_temp/merged_reads/merged_R1.fastq
+    cat ${strDirectory}_temp/raw_reads/*R2*.fastq > ${strDirectory}_temp/merged_reads/merged_R2.fastq
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
-                                               -r ${strDirectory}/merged_reads
-    zip -rj ${strScriptDir}/tempzip.zip fastafiles/gene*
-    cp ${strScriptDir}/tempzip.zip ${outputzip}
-    rm -rf fastafiles
-    rm -f merged_reads
-    rm -rf tempzip.zip
-    rm -rf ${strScriptDir}/tempzip
+                                               -r ${strDirectory}_temp/merged_reads \
+                                               -o ${strDirectory}_temp/fastafiles/
+    zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene*
+    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
+#    cat ${strDirectory}_temp/TempZip.zip > ${outputzip}
     rm -rf ${strDirectory}_temp
+
+
 }
 
 # The main function.
@@ -54,7 +56,7 @@ while getopts ":b:r:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.5.0]"
+            echo "distribute_reads_to_targets_bwa.sh [1.5.3]"
             echo ""
 
             exit

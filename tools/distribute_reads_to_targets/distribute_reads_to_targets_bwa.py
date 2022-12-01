@@ -3,7 +3,7 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.5.0
+Version 1.5.3
 
 Usage:
 -------------------
@@ -113,7 +113,7 @@ def read_sorting(bamfilename):
     return read_hit_dict
 
 
-def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
+def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path, single=True):
     """Writes results towards the output fasta files
 
             Parameters
@@ -132,7 +132,7 @@ def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
                 boolean to specify whether the reads are single-end or paired
                 (default=True)
             """
-    path = "fastafiles/"
+    path = output_path
     mkdir_p(path)
     if single:
         outfile = open(
@@ -149,7 +149,7 @@ def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, single=True):
         outfile2.close()
 
 
-def write_single_seqs(target, ID1, Seq1):
+def write_single_seqs(target, ID1, Seq1, output_path):
     """Distributing targets from single-end sequencing
 
                Parameters
@@ -161,7 +161,7 @@ def write_single_seqs(target, ID1, Seq1):
                Seq1 : str
                    a string containing sequence1
                """
-    path = "fastafiles/"
+    path = output_path
     mkdir_p(path)
     outfile = open(os.path.join(path, "{}_unpaired.fasta".format(target)),
                    'a')
@@ -169,7 +169,7 @@ def write_single_seqs(target, ID1, Seq1):
     outfile.close()
 
 
-def distribute_reads(readfile, pair_list, read_hit_dict, single=True):
+def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=True):
     """uses samtools to read the BAMfile and sort the reads to the targets
         then updates a dictionary for each hit.
 
@@ -198,7 +198,7 @@ def distribute_reads(readfile, pair_list, read_hit_dict, single=True):
                     ID1 = ID1[:-2]
                 if ID1 in read_hit_dict:
                     for target in read_hit_dict[ID1]:
-                        write_single_seqs(target, ID1, Seq1)
+                        write_single_seqs(target, ID1, Seq1, output_path)
                         reads_written += 1
                 j = (reads_written + 1) / num_reads_to_write
                 if int(100 * j) % 5 == 0:
@@ -227,11 +227,11 @@ def distribute_reads(readfile, pair_list, read_hit_dict, single=True):
 
             if ID1 in read_hit_dict:
                 for target in read_hit_dict[ID1]:
-                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2)
+                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path)
                 reads_written += 1
             elif ID2 in read_hit_dict:
                 for target in read_hit_dict[ID2]:
-                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2)
+                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path)
                 reads_written += 1
             j = (reads_written + 1) / num_reads_to_write
             if int(100 * j) % 5 == 0:
@@ -251,12 +251,15 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.5.0")
+                        version="distribute_reads_to_targets_bwa 1.5.3")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
+                        required=True)
+    parser.add_argument("-o", "--output", action="store", dest="output_path",
+                        help="The path location where the output should go",
                         required=True)
     argvs = parser.parse_args()
     return argvs
@@ -310,13 +313,14 @@ def main():
     argvs = parseArgvs()
     bamfilename = argvs.bamfile
     read_zip_file = argvs.readfile
+    output_path = argvs.output_path
     filenames = getFilenames(read_zip_file)
     pair_list = makePairs(filenames)
 
     read_hit_dict = read_sorting(bamfilename)
     print("Unique reads with hits: {}".format(len(read_hit_dict)))
     for pair in pair_list:
-        distribute_reads(read_zip_file, pair, read_hit_dict, single=True)
+        distribute_reads(read_zip_file, output_path, pair, read_hit_dict, single=True)
 
 
 if __name__ == "__main__": main()
