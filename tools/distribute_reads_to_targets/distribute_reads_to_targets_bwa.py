@@ -3,7 +3,7 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.5.3
+Version 1.6.0
 
 Usage:
 -------------------
@@ -251,7 +251,7 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.5.3")
+                        version="distribute_reads_to_targets_bwa 1.6.0")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)

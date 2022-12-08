@@ -1,4 +1,4 @@
-<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.5.3">
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.6.0">
     <!--><description>
         After a BWA search of the raw reads against the target sequences,
         the reads need to be sorted according to the successful hits.
@@ -6,9 +6,10 @@
         and distributes the reads into FASTA files ready for assembly.
     </description>-->
     <requirements>
-        <requirement type="package" version="3.7.6">python</requirement>
-        <requirement type="package" version="1.78">Biopython</requirement>
-        <requirement type="package" version="1.7">samtools</requirement>
+        <requirement type="package" version="3.9">python</requirement>
+        <requirement type="package">biopython</requirement>
+        <requirement type="package">samtools</requirement>
+        <requirement type="package">zip</requirement>
     </requirements>
     <!-- Call the distribute_reads_to_targets script,
            set input parameters according to user choices. -->

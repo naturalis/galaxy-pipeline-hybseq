@@ -2,10 +2,12 @@
 
 # sanity check
 printf "Conda env: $CONDA_DEFAULT_ENV\n"
-printf "Python version: $(python --version |  awk '{print $2}')\n"
+#printf "Python version: $(python --version |  awk '{print $2}')\n"
+printf "Python version: $(conda list | egrep python | awk '{print $2}')\n"
 printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
 printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
 printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
+prinff "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n"
 printf "Bash version: ${BASH_VERSION}\n\n"
 
 # The runDistributeToTargets function calls the python script, which,
@@ -18,8 +20,8 @@ printf "Bash version: ${BASH_VERSION}\n\n"
 
 runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
-    strDirectory=$(mktemp -d /data/files/XXXXXX) # /media/GalaxyData/database/files/XXXXXX
-
+    base_location=$(echo ${outputzip} | egrep -o '^.*files/')
+    strDirectory=$(mktemp -d ${base_location}/XXXXXX)
     mkdir -p "${strDirectory}_temp"
     mkdir -p "${strDirectory}_temp/merged_reads"
     unzip ${readfolder} -d ${strDirectory}_temp/packed_reads
@@ -56,7 +58,7 @@ while getopts ":b:r:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.5.3]"
+            echo "distribute_reads_to_targets_bwa.sh [1.6.0]"
             echo ""
 
             exit
