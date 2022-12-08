@@ -2,8 +2,8 @@
 
 # sanity check
 printf "Conda env: $CONDA_DEFAULT_ENV\n"
-#printf "Python version: $(python --version |  awk '{print $2}')\n"
-printf "Python version: $(conda list | egrep python | awk '{print $2}')\n"
+printf "Python version: $(python --version |  awk '{print $2}')\n"
+#printf "Python version: $(conda list | egrep python3 | awk '{print $2}')\n"
 printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
 printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
 printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
