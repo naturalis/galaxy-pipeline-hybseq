@@ -1,4 +1,4 @@
-<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.6.0">
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.6.3">
     <!--><description>
         After a BWA search of the raw reads against the target sequences,
         the reads need to be sorted according to the successful hits.

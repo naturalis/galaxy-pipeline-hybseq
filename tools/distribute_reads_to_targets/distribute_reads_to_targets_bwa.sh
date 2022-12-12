@@ -7,7 +7,7 @@ printf "Python version: $(python --version |  awk '{print $2}')\n"
 printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
 printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
 printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
-prinff "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n"
+printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n"
 printf "Bash version: ${BASH_VERSION}\n\n"
 
 # The runDistributeToTargets function calls the python script, which,
@@ -31,10 +31,14 @@ runDistributeToTargets() {
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${strDirectory}_temp/merged_reads \
                                                -o ${strDirectory}_temp/fastafiles/
+    printf "Distributing script finished successfully, attempting to create Zip...\n" >&2
+    printf " " >&2
     zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene*
-    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
-#    cat ${strDirectory}_temp/TempZip.zip > ${outputzip}
+#    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
+    cat ${strDirectory}_temp/tempzip.zip > ${outputzip}
     rm -rf ${strDirectory}_temp
+    printf "Shell script finished successfully\n" >&2
+    printf "Outputlocation: "${readfolder}"\n" >&2
 
 
 }
