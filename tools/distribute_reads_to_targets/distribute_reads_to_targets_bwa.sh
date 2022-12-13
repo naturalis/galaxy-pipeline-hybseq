@@ -20,26 +20,39 @@ printf "Bash version: ${BASH_VERSION}\n\n"
 
 runDistributeToTargets() {
     strScriptDir=$(dirname "$(readlink -f "$0")")
-    base_location=$(echo ${outputzip} | egrep -o '^.*files/')
+    base_location=$(echo ${outputzip} | egrep -o '^.*files')
     strDirectory=$(mktemp -d ${base_location}/XXXXXX)
     mkdir -p "${strDirectory}_temp"
     mkdir -p "${strDirectory}_temp/merged_reads"
+    mkdir -p "${strDirectory}_temp/outputfile/"
+    printf "Base_location: ${base_location}\n" >&2
+    printf "strDirectory location: ${strDirectory}\n" >&2
     unzip ${readfolder} -d ${strDirectory}_temp/packed_reads
     unzip ${strDirectory}_temp/packed_reads"/*.zip" -d ${strDirectory}_temp/raw_reads
+
+# Merge de FASTQ files van elke pair in twee losse fastq files
     cat ${strDirectory}_temp/raw_reads/*R1*.fastq > ${strDirectory}_temp/merged_reads/merged_R1.fastq
     cat ${strDirectory}_temp/raw_reads/*R2*.fastq > ${strDirectory}_temp/merged_reads/merged_R2.fastq
+
+# Gebruikt de de unpacked fastq files als input en outputs (losse fasta files in de -o flag)
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${strDirectory}_temp/merged_reads \
                                                -o ${strDirectory}_temp/fastafiles/
+    printf "Python output: $(ls ${strDirectory}_temp/fastafiles/)\n" >&2
     printf "Distributing script finished successfully, attempting to create Zip...\n" >&2
-    printf " " >&2
-    zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene*
-#    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
-    cat ${strDirectory}_temp/tempzip.zip > ${outputzip}
-    rm -rf ${strDirectory}_temp
-    printf "Shell script finished successfully\n" >&2
-    printf "Outputlocation: "${readfolder}"\n" >&2
 
+# Zip command die de losse fasta files uit het python script in een zip bestand doet in een tijdelijke folder
+    zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene*
+
+# Kopieer de gezipte fasta files naar de uiteindelijke outputlocatie gegenereert door Galaxy
+    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
+    printf "_temp folder contents: $(ls ${strDirectory}_temp)\n" >&2
+#    cat ${strDirectory}_temp/tempzip.zip > ${outputzip}
+#    mv ${strDirectory}_temp/tempzip.zip ${outputzip}
+    rm -rf ${strDirectory}_temp
+    printf "Outputlocation: "${outputzip}"\n" >&2
+    printf "Output.dat folder contents: "$(ls ${outputzip})"\n" >&2
+    printf "Shell script finished successfully\n" >&2
 
 }
 
@@ -62,7 +75,7 @@ while getopts ":b:r:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.6.0]"
+            echo "distribute_reads_to_targets_bwa.sh [1.6.3]"
             echo ""
 
             exit
