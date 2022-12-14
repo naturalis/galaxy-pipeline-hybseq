@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
 # sanity check
-printf "Conda env: $CONDA_DEFAULT_ENV\n"
-printf "Python version: $(python --version |  awk '{print $2}')\n"
-#printf "Python version: $(conda list | egrep python3 | awk '{print $2}')\n"
-printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n"
-printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n"
-printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n"
-printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n"
-printf "Bash version: ${BASH_VERSION}\n\n"
+printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
+printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
+printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
+printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
+printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
+printf "Bash version: ${BASH_VERSION}\n\n" >&1
 
 # The runDistributeToTargets function calls the python script, which,
 # after a BWA search against the target sequences, sorts the hits
@@ -25,10 +23,10 @@ runDistributeToTargets() {
     mkdir -p "${strDirectory}_temp"
     mkdir -p "${strDirectory}_temp/merged_reads"
     mkdir -p "${strDirectory}_temp/outputfile/"
-    printf "Base_location: ${base_location}\n" >&2
-    printf "strDirectory location: ${strDirectory}\n" >&2
-    unzip ${readfolder} -d ${strDirectory}_temp/packed_reads
-    unzip ${strDirectory}_temp/packed_reads"/*.zip" -d ${strDirectory}_temp/raw_reads
+    printf "Base_location: ${base_location}\n" >&1
+    printf "strDirectory location: ${strDirectory}\n" >&1
+    unzip -qq ${readfolder} -d ${strDirectory}_temp/packed_reads 2> >(grep -v "were successfully processed")
+    unzip -qq ${strDirectory}_temp/packed_reads"/*.zip" -d ${strDirectory}_temp/raw_reads 2> >(grep -v "were successfully processed")
 
 # Merge de FASTQ files van elke pair in twee losse fastq files
     cat ${strDirectory}_temp/raw_reads/*R1*.fastq > ${strDirectory}_temp/merged_reads/merged_R1.fastq
@@ -38,21 +36,22 @@ runDistributeToTargets() {
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${strDirectory}_temp/merged_reads \
                                                -o ${strDirectory}_temp/fastafiles/
-    printf "Python output: $(ls ${strDirectory}_temp/fastafiles/)\n" >&2
-    printf "Distributing script finished successfully, attempting to create Zip...\n" >&2
+    printf "Python output: $(ls ${strDirectory}_temp/fastafiles/)\n" >&1
+    printf "Distributing script finished successfully, attempting to create Zip...\n" >&1
 
 # Zip command die de losse fasta files uit het python script in een zip bestand doet in een tijdelijke folder
-    zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene*
+    zip -rj ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/fastafiles/gene* >&1
 
 # Kopieer de gezipte fasta files naar de uiteindelijke outputlocatie gegenereert door Galaxy
     cp ${strDirectory}_temp/tempzip.zip ${outputzip}
-    printf "_temp folder contents: $(ls ${strDirectory}_temp)\n" >&2
+#    cp ${strDirectory}_temp/tempzip.zip ${strScriptDir}/output.zip
+    printf "_temp folder contents: $(ls ${strDirectory}_temp)\n" >&1
 #    cat ${strDirectory}_temp/tempzip.zip > ${outputzip}
 #    mv ${strDirectory}_temp/tempzip.zip ${outputzip}
     rm -rf ${strDirectory}_temp
-    printf "Outputlocation: "${outputzip}"\n" >&2
-    printf "Output.dat folder contents: "$(ls ${outputzip})"\n" >&2
-    printf "Shell script finished successfully\n" >&2
+    printf "Outputlocation: "${outputzip}"\n" >&1
+    printf "Output.dat folder contents: "$(ls ${outputzip})"\n" >&1
+    printf "Shell script finished successfully\n" >&1
 
 }
 
@@ -75,7 +74,7 @@ while getopts ":b:r:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.6.3]"
+            echo "distribute_reads_to_targets_bwa.sh [1.7.0]"
             echo ""
 
             exit

@@ -3,7 +3,7 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.6.3
+Version 1.7.0
 
 Usage:
 -------------------
@@ -189,7 +189,7 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
         iterator1 = FastqGeneralIterator(open("".join([readfile, '/',
                                                        filenames[0]])))
         reads_written = 0
-        sys.stderr.write("Read distributing progress:\n")
+#        sys.stderr.write("Read distributing progress:\n")
 
         if len(filenames) == 1:
             for ID1_long, Seq1, Qual1 in iterator1:
@@ -201,12 +201,12 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
                         write_single_seqs(target, ID1, Seq1, output_path)
                         reads_written += 1
                 j = (reads_written + 1) / num_reads_to_write
-                if int(100 * j) % 5 == 0:
-                    sys.stderr.write("\r")
-                    sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j),
-                                                       100 * j))
-                    sys.stderr.flush()
-            sys.stderr.write("\n")
+               # if int(100 * j) % 5 == 0:
+                    #sys.stderr.write("\r")
+                    #sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j),
+                    #                                   100 * j))
+                    #sys.stderr.flush()
+            #sys.stderr.write("\n")
             return
 
         elif len(filenames) == 2:
@@ -234,11 +234,11 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
                     write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path)
                 reads_written += 1
             j = (reads_written + 1) / num_reads_to_write
-            if int(100 * j) % 5 == 0:
-                sys.stderr.write("\r")
-                sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j), 100 * j))
-                sys.stderr.flush()
-        sys.stderr.write("\n")
+           # if int(100 * j) % 5 == 0:
+                #sys.stderr.write("\r")
+                #sys.stderr.write("[%-20s] %d%%" % ('=' * int(20 * j), 100 * j))
+                #sys.stderr.flush()
+        #sys.stderr.write("\n")
 
 # The argvs function.
 def parseArgvs():
@@ -251,7 +251,7 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.6.3")
+                        version="distribute_reads_to_targets_bwa 1.7.0")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)
@@ -321,9 +321,8 @@ def main():
     print("Unique reads with hits: {}".format(len(read_hit_dict)))
     for pair in pair_list:
         distribute_reads(read_zip_file, output_path, pair, read_hit_dict, single=True)
-    sys.stderr.write("Reads distributed successfully\n")
+    #sys.stderr.write("Reads distributed successfully\n")
 
 
 
 if __name__ == "__main__": main()
-

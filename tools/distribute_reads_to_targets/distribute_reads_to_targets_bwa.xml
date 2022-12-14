@@ -1,33 +1,25 @@
-<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.6.3">
-    <!--><description>
-        After a BWA search of the raw reads against the target sequences,
-        the reads need to be sorted according to the successful hits.
-        This script takes the BWA output (BAM format) and the raw read files,
-        and distributes the reads into FASTA files ready for assembly.
-    </description>-->
-    <requirements>
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.7.0">
+<!--<description>quality trim reads</description>-->
+<requirements>
         <requirement type="package" version="3.9">python</requirement>
         <requirement type="package">biopython</requirement>
         <requirement type="package">samtools</requirement>
         <requirement type="package">zip</requirement>
-    </requirements>
-    <!-- Call the distribute_reads_to_targets script,
-           set input parameters according to user choices. -->
-
+</requirements>
     <command><![CDATA[
-        bash "$__tool_directory__/distribute_reads_to_targets_bwa.sh" -b ${bam_file}
-                                                      -r ${read_zip}
-                                                      -o ${output_zip}
+        bash "$__tool_directory__/distribute_reads_to_targets_bwa.sh"
+        -b ${bam}
+        -r ${reads}
+        -o ${output}
     ]]></command>
     <inputs>
         <!-- Catch the input file. -->
-        <param name="bam_file" type="data" format="bam" label="BWA BAM file" />
-        <param name="read_zip" type="data" format="zip" label="Read files" />
+        <param name="bam" type="data" format="bam" label="BWA BAM file" />
+        <param name="reads" type="data" format="zip" label="Read files" />
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
-        <data format="zip" name="output_zip" label="Distributed Reads">
-        </data>
+        <data format="zip" type="data" name="output" label="Distributed Reads" />
     </outputs>
     <tests>
     </tests>
