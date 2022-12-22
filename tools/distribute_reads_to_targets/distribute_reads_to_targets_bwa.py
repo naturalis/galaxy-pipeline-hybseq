@@ -3,7 +3,7 @@
 '''
 Edited by Jeremy van Veen commissioned by Naturalis for use in Galaxy
 Original Author: https://github.com/mossmatters
-Version 1.7.0
+Version 1.7.4
 
 Usage:
 -------------------
@@ -113,7 +113,7 @@ def read_sorting(bamfilename):
     return read_hit_dict
 
 
-def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path, single=True):
+def write_paired_seqs(target, ID1, Seq1, Qual1, ID2, Seq2, Qual2, output_path, fa_format, single=True):
     """Writes results towards the output fasta files
 
             Parameters
@@ -134,22 +134,38 @@ def write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path, single=True):
             """
     path = output_path
     mkdir_p(path)
-    if single:
-        outfile = open(
-            os.path.join(path, "{}_interleaved.fasta".format(target)), 'a')
-        outfile.write(">{}\n{}\n".format(ID1, Seq1))
-        outfile.write(">{}\n{}\n".format(ID2, Seq2))
-        outfile.close()
+    if fa_format == "fasta":
+        if single:
+            outfile = open(
+                os.path.join(path, "{}_interleaved.fasta".format(target)), 'a')
+            outfile.write(">{}\n{}\n".format(ID1, Seq1))
+            outfile.write(">{}\n{}\n".format(ID2, Seq2))
+            outfile.close()
+        else:
+            outfile1 = open(os.path.join(path, "{}_1.fasta".format(target)), 'a')
+            outfile1.write(">{}\n{}\n".format(ID1, Seq1))
+            outfile2 = open(os.path.join(path, "{}_2.fasta".format(target)), 'a')
+            outfile2.write(">{}\n{}\n".format(ID2, Seq2))
+            outfile1.close()
+            outfile2.close()
     else:
-        outfile1 = open(os.path.join(path, "{}_1.fasta".format(target)), 'a')
-        outfile1.write(">{}\n{}\n".format(ID1, Seq1))
-        outfile2 = open(os.path.join(path, "{}_2.fasta".format(target)), 'a')
-        outfile2.write(">{}\n{}\n".format(ID2, Seq2))
-        outfile1.close()
-        outfile2.close()
+        if single:
+            outfile = open(
+                os.path.join(path, "{}_interleaved.fastq".format(target)), 'a')
+            outfile.write("@{}\n{}\n{}\n{}\n".format(ID1, Seq1, "+", Qual1))
+            outfile.write("@{}\n{}\n{}\n{}\n".format(ID2, Seq2, "+", Qual2))
+            outfile.close()
+        else:
+            outfile1 = open(os.path.join(path, "{}_1.fastq".format(target)), 'a')
+            outfile1.write("@{}\n{}\n{}\n{}\n".format(ID1, Seq1, "+", Qual1))
+            outfile2 = open(os.path.join(path, "{}_2.fastq".format(target)), 'a')
+            outfile2.write("@{}\n{}\n{}\n{}\n".format(ID2, Seq2, "+", Qual2))
+            outfile1.close()
+            outfile2.close()
 
 
-def write_single_seqs(target, ID1, Seq1, output_path):
+
+def write_single_seqs(target, ID1, Seq1, Qual1, output_path, fa_format):
     """Distributing targets from single-end sequencing
 
                Parameters
@@ -163,13 +179,19 @@ def write_single_seqs(target, ID1, Seq1, output_path):
                """
     path = output_path
     mkdir_p(path)
-    outfile = open(os.path.join(path, "{}_unpaired.fasta".format(target)),
-                   'a')
-    outfile.write(">{}\n{}\n".format(ID1, Seq1))
-    outfile.close()
+    if fa_format == "fasta":
+        outfile = open(os.path.join(path, "{}_unpaired.fasta".format(target)),
+                       'a')
+        outfile.write(">{}\n{}\n".format(ID1, Seq1))
+        outfile.close()
+    else:
+        outfile = open(os.path.join(path, "{}_unpaired.fastq".format(target)),
+                       'a')
+        outfile.write("@{}\n{}\n{}\n{}\n".format(ID1, Seq1, "+", Qual1))
+        outfile.close()
 
 
-def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=True):
+def distribute_reads(readfile, output_path, pair_list, read_hit_dict, fa_format, single=True):
     """uses samtools to read the BAMfile and sort the reads to the targets
         then updates a dictionary for each hit.
 
@@ -198,7 +220,7 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
                     ID1 = ID1[:-2]
                 if ID1 in read_hit_dict:
                     for target in read_hit_dict[ID1]:
-                        write_single_seqs(target, ID1, Seq1, output_path)
+                        write_single_seqs(target, ID1, Seq1, Qual1, output_path, fa_format)
                         reads_written += 1
                 j = (reads_written + 1) / num_reads_to_write
                # if int(100 * j) % 5 == 0:
@@ -214,9 +236,13 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
                                                            filenames[1]])))
 
         for ID1_long, Seq1, Qual1 in iterator1:
-
-            ID2_long, Seq2, Qual2 = next(iterator2)
-
+            # print("Read 1: ")
+            # print("---------------------------")
+            # print(ID1_long, Seq1, Qual1)
+            ID2_long, Seq2, Qual2= next(iterator2)
+            # print("Read 2: ")
+            # print("---------------------------")
+            # print(ID2_long, Seq2, Qual2)
             ID1 = ID1_long.split()[0]
             if ID1.endswith("/1") or ID1.endswith("/2"):
                 ID1 = ID1[:-2]
@@ -227,11 +253,11 @@ def distribute_reads(readfile, output_path, pair_list, read_hit_dict, single=Tru
 
             if ID1 in read_hit_dict:
                 for target in read_hit_dict[ID1]:
-                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path)
+                    write_paired_seqs(target, ID1, Seq1, Qual1, ID2, Seq2, Qual2, output_path, fa_format)
                 reads_written += 1
             elif ID2 in read_hit_dict:
                 for target in read_hit_dict[ID2]:
-                    write_paired_seqs(target, ID1, Seq1, ID2, Seq2, output_path)
+                    write_paired_seqs(target, ID1, Seq1, Qual1, ID2, Seq2, Qual2, output_path, fa_format)
                 reads_written += 1
             j = (reads_written + 1) / num_reads_to_write
            # if int(100 * j) % 5 == 0:
@@ -251,7 +277,7 @@ def parseArgvs():
                                                  "into fasta files for"
                                                  "assembly")
     parser.add_argument("-v", "--version", action="version",
-                        version="distribute_reads_to_targets_bwa 1.7.0")
+                        version="distribute_reads_to_targets_bwa 1.7.4")
     parser.add_argument("-b", "--bamfile", action="store", dest="bamfile",
                         help="The location of the input bamfile",
                         required=True)
@@ -260,6 +286,10 @@ def parseArgvs():
                         required=True)
     parser.add_argument("-o", "--output", action="store", dest="output_path",
                         help="The path location where the output should go",
+                        required=True)
+    parser.add_argument("-f", "--format", action="store", dest="fa_format",
+                        default="fastq",
+                        help="The format of the output files FASTA/FASTQ",
                         required=True)
     argvs = parser.parse_args()
     return argvs
@@ -314,13 +344,14 @@ def main():
     bamfilename = argvs.bamfile
     read_zip_file = argvs.readfile
     output_path = argvs.output_path
+    fastq_string = argvs.fa_format #either "fastq" or "fasta"
     filenames = getFilenames(read_zip_file)
     pair_list = makePairs(filenames)
 
     read_hit_dict = read_sorting(bamfilename)
     print("Unique reads with hits: {}".format(len(read_hit_dict)))
     for pair in pair_list:
-        distribute_reads(read_zip_file, output_path, pair, read_hit_dict, single=True)
+        distribute_reads(read_zip_file, output_path, pair, read_hit_dict, fastq_string, single=True)
     #sys.stderr.write("Reads distributed successfully\n")
 
 

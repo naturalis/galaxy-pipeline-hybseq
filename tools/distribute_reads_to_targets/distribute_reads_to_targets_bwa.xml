@@ -1,4 +1,4 @@
-<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.7.0">
+<tool id="distribute_reads_to_targets_bwa" name="Distribute Reads to Targets" version="1.7.4">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -11,11 +11,16 @@
         -b ${bam}
         -r ${reads}
         -o ${output}
+        -f ${format}
     ]]></command>
     <inputs>
         <!-- Catch the input file. -->
         <param name="bam" type="data" format="bam" label="BWA BAM file" />
         <param name="reads" type="data" format="zip" label="Read files" />
+        <param name="format" type="select" label="Output Format" help="Format of the distributed reads">
+            <option value="fastq" selected="true">FASTQ</option>
+            <option value="fasta">FASTA</option>
+        </param>
     </inputs>
     <outputs>
         <!-- Catch the output file. -->

@@ -35,7 +35,8 @@ runDistributeToTargets() {
 # Gebruikt de de unpacked fastq files als input en outputs (losse fasta files in de -o flag)
     python3 $strScriptDir"/distribute_reads_to_targets_bwa.py" -b ${bamfile} \
                                                -r ${strDirectory}_temp/merged_reads \
-                                               -o ${strDirectory}_temp/fastafiles/
+                                               -o ${strDirectory}_temp/fastafiles/ \
+                                               -f ${fa_format}
     printf "Python output: $(ls ${strDirectory}_temp/fastafiles/)\n" >&1
     printf "Distributing script finished successfully, attempting to create Zip...\n" >&1
 
@@ -61,7 +62,7 @@ main() {
 }
 
 # The getopts function.
-while getopts ":b:r:o:vh" opt; do
+while getopts ":b:r:o:f:vh" opt; do
     case ${opt} in
         b)
             bamfile=${OPTARG}
@@ -72,9 +73,12 @@ while getopts ":b:r:o:vh" opt; do
         o)
             outputzip=${OPTARG}
             ;;
+        f)
+            fa_format=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "distribute_reads_to_targets_bwa.sh [1.7.0]"
+            echo "distribute_reads_to_targets_bwa.sh [1.7.4]"
             echo ""
 
             exit
@@ -84,13 +88,14 @@ while getopts ":b:r:o:vh" opt; do
             echo "Usage: distribute_reads_to_targets_bwa.sh [-h] [-v] "
             echo "                 [-b INPUT_BAM] [-r RAW_READS_ZIP]  "
             echo "                 [-o OUTPUT_ZIP]                    "
+            echo "                 [-f FORMAT_TYPE]                   "
             echo ""
             echo "After a BWA search of the raw reads against "
             echo "the target sequences, the reads need to be sorted "
             echo "according to the successful hits. "
             echo "This script takes the BWA output (BAM format) "
             echo " and the raw read files"
-            echo "and distributes the reads into FASTA files "
+            echo "and distributes the reads into FASTA or FASTQ files "
             echo "ready for assembly."
             echo ""
 
