@@ -17,7 +17,7 @@
 # Usage: sh distribute_reads_to_targets_bwa.sh -b Galaxy82-[Merged_BAM].bam -r Raw_reads_test.zip -o distributed_reads.zip
 #
 
-# version 1.0.0 (nonfunctional)
+# version 1.0.1 
 
 runHybpiperAssemble() {
     (
@@ -39,7 +39,7 @@ runHybpiperAssemble() {
     # Generate Hybpiper commands
      python3 ${strScriptDir}/generate_hybpiper_commands.py \
         -r ${rawReadsFile} \
-        -o "cmdfile.txt" \
+        -o "${strDirectory}_temp/cmdfile.txt" \
         -t ${targetfile} \
         -f ${target_format} \
         -e ${search_engine} \
@@ -50,7 +50,7 @@ runHybpiperAssemble() {
     while read cmd_to_execute
       do
         eval "${cmd_to_execute}"
-      done < cmdfile.txt
+      done < "${strDirectory}_temp/cmdfile.txt"
 
     # move everything to proper location
     cp -r ${outputDirectory}/* ${strDirectory}_temp/outputfile/
@@ -63,10 +63,7 @@ runHybpiperAssemble() {
     # Delete remaining temporary files
     rm -rf ${strDirectory}_temp
 
-    # Delete Generated commands txt file
-    rm ${strScriptDir}/cmdfile.txt
-
-    ) #> /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
+    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
 }
 
 # The main function.

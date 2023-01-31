@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Version: 1.0.0
+Version: 1.0.1
 Author: Jeremy van Veen
 '''
 import os, argparse
@@ -169,11 +169,11 @@ def main():
 
 
     # write commands to .txt file
-    write_commands_to_file(cmds, overwrite=True)
-    write_commands_to_file([stats_cmd])
-    write_commands_to_file([heatmap_cmd])
-    write_commands_to_file(retrieve_cmds)
-    write_commands_to_file([paralog_cmd])
+    write_commands_to_file(cmds, output_location, overwrite=True)
+    #write_commands_to_file([stats_cmd])
+    #write_commands_to_file([heatmap_cmd])
+    #write_commands_to_file(retrieve_cmds)
+    #write_commands_to_file([paralog_cmd])
 
 if __name__ == '__main__':
     main()
