@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+'''
+Version: 1.0.0
+Author: Jeremy van Veen
+'''
 import os, argparse
 
 

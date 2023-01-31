@@ -17,6 +17,8 @@
 # Usage: sh distribute_reads_to_targets_bwa.sh -b Galaxy82-[Merged_BAM].bam -r Raw_reads_test.zip -o distributed_reads.zip
 #
 
+# version 1.0.0 (nonfunctional)
+
 runHybpiperAssemble() {
     (
     strScriptDir=$(dirname "$(readlink -f "$0")")

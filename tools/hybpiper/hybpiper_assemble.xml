@@ -1,13 +1,12 @@
-<tool id="hybpiper" name="HybPiper Assemble" version="2.1.1">
+<tool id="hybpiper" name="HybPiper Assemble" version="1.0.0">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
-     <!--   <requirement type="package" version="2.1.1">hybpiper</requirement> -->
+        <requirement type="package">hybpiper</requirement> 
         <requirement type="package">blast</requirement>
         <requirement type="package">mafft</requirement>
 </requirements>
     <command><![CDATA[
-	conda install --yes -c chrisjackson-pellicle hybpiper
         bash "$__tool_directory__/hybpiper_assemble.sh"
         -r ${reads}
         -o ${output}
