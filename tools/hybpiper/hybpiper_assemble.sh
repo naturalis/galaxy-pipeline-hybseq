@@ -1,23 +1,25 @@
 #!/bin/bash
-# #!/usr/bin/env bash
+
 
 # sanity check
-#printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
-#printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
-#printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
-#printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
-#printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
-#printf "Bash version: ${BASH_VERSION}\n\n" >&1
+printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
+printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
+printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
+printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
+printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
+printf "Bash version: ${BASH_VERSION}\n\n" >&1
 
-# The runDistributeToTargets function calls the python script, which,
-# after a BWA search against the target sequences, sorts the hits
-# from the BAM-file to the successful hits.
-# Then copies the output to one final ZIP file and removes the temporary files.
-
-# Usage: sh distribute_reads_to_targets_bwa.sh -b Galaxy82-[Merged_BAM].bam -r Raw_reads_test.zip -o distributed_reads.zip
+# The runHybpiperAssemble function calls the python script, which,
+# generates the nessesary hybpiper commands based on the inputs and writes
+# them to a .txt file.
+# This text file is then opened in a while loop and executes every command
+# one by one.
 #
-
-# version 1.0.1 
+# Usage:
+# sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
+#
+#
+# version 1.0.2
 
 runHybpiperAssemble() {
     (
@@ -107,7 +109,11 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             echo "Usage: distribute_reads_to_targets_bwa.sh [-h] [-v] "
             echo "                 [-r RAW_READS_ZIP]                 "
             echo "                 [-o OUTPUT_ZIP]                    "
-            echo "                 [-t SEQUENCE_TYPE]                   "
+            echo "                 [-t TARGET_FILE_FASTA]             "
+            echo "                 [-f TARGET_FORMAT]                 "
+            echo "                 [-e MAPPING METHOD]                "
+            echo "                 [-i INTRONERATE_BOOL]              "
+            echo "                 [-m HEATMAP_BOOL]                  "
             echo ""
             echo "HybPiper was designed for targeted sequence capture,"
             echo "in which DNA sequencing libraries are enriched for gene regions of interest, especially for phylogenetics. "

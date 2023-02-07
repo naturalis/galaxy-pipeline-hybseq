@@ -1,15 +1,27 @@
 #!/usr/bin/env python
 
 '''
-Version: 1.0.1
+Version: 1.0.2
 Author: Jeremy van Veen
+
+Description:
+
+This script takes several inputs using the argparse command, with which it
+generates the commands needed to run Hybpiper.
+
+It works in conjunction with- and is called by the hybpiper_assemble.sh shell
+script to create a file with the complete commands.
+
+The shell script would then go over each command in that text file one by one
+and execute them to run the Hybpiper pipeline as intended.
 '''
 import os, argparse
 
 
 def get_file_names(directory):
     """Iterates through a specified directory and returns a list with
-    the file names.
+    the file names (without the extention)
+    Useful for getting the names of the sample.
 
         Parameters
         ----------
@@ -21,7 +33,7 @@ def get_file_names(directory):
         filenames : list
             a list of strings which are the names of the files in the
             specified directory.
-        """
+    """
     # iterate over files in
     # that directory
     filenames = []
@@ -29,14 +41,36 @@ def get_file_names(directory):
         file = os.path.join(directory, filename)
         # checking if it is a file
         if os.path.isfile(file):
-    # split off extentions
+            # split off extentions
             file_list = file.split('.')
-    # remove directory path/extentions and keep file name
-            filenames.append(file_list[0][1+len(directory):])
+            # remove directory path/extentions and keep file name
+            filenames.append(file_list[0][1 + len(directory):])
     return filenames
 
 
 def get_sample_names(filenames, unique=False):
+    """Iterates through a list of filenames, splits the filenames on every
+    underscore they contain, and appends only the part before the first under
+    score to the list it returns.
+    The output is a list containing just the sample name, and none of the other
+    extentions like _R1 or _test
+
+            Parameters
+            ----------
+            filenames : list
+                The list with all the full filenames
+            unique : bool (default=False)
+                A boolean indicating whether the output list should only
+                have unique values.
+                If true, the function removes duplicates by casting the list
+                as a set and then back to a list.
+
+            Returns
+            -------
+            samplenames_list : list
+                a list of strings which are just the sample names
+                instead of the full file name.
+        """
     samplenames_list, pair_dict = [], {}
     for filename in filenames:
         part_index = 0
@@ -53,22 +87,75 @@ def get_sample_names(filenames, unique=False):
             samplenames_list.sort()
     return samplenames_list
 
-def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt", overwrite=False):
+
+def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt",
+                           overwrite=False):
+    """Iterates through a list, and writes each element to a new line in the
+    specified output file.
+
+                Parameters
+                ----------
+                to_write_list : list
+                    A list with all the elements the function needs to write
+                    to the output file.
+                outputlocation : str
+                    A string with the path to where the outputfile should be
+                    by default the output file is a txt file called
+                    'cmdfile.txt' in the same directory as the script.
+                overwrite : bool
+                    A boolean indicating whether the the outputfile should be
+                    reset. If false, output is apended to the output file, if
+                    True, the output file is emptied before being written to.
+    """
     file = outputlocation
     if overwrite:
         resetfile = open(file, "w")
         resetfile.close()
     with open(file, "a") as outfile:
         for element in to_write_list:
-            outfile.write(element+"\n")
+            outfile.write(element + "\n")
 
 
-def construct_assemble_commands(readfile, samplenames, target_format, targetfile, search_engine, intronerate_bool):
+def construct_assemble_commands(readfile, samplenames, target_format,
+                                targetfile, search_engine, intronerate_bool):
+    """The function assembles the hybpiper assemble command
+    It does this by appending a template string with the proper flags according
+    to the state of the arguments. Using this method, it assembles one
+    command for each sample for every read file. Then returns a list
+    of all the generated commands.
+
+                Parameters
+                ----------
+                readfile : str
+                    A string resembling the path to the folder with the read
+                    fastq file.
+                samplenames : list
+                    A list containing the names of all the samples.
+                target_format : str
+                    The list with all the full filenames
+                targetfile : str
+                    A string resembling the path to the targets fasta file.
+                search_engine : str
+                    A string coresponding to the type of method hybpiper
+                    should use for mapping reads.
+                intronerate_bool : str
+                    Functions as a boolean, with values 'y' and 'n'
+                    to represent true and false respectively. This 'boolean'
+                    checks to see to add the flag to run intronerate
+                    to the hybpiper assemble command.
+
+                Returns
+                -------
+                assemble_cmds : list
+                    a list of the generated hybpiper assemble commands in the
+                    form of strings.
+            """
     assemble_cmds = []
     for sample in samplenames:
-        assemble_cmd = "hybpiper assemble -r %s/%s.fastq" % (str(readfile), sample)
+        assemble_cmd = "hybpiper assemble -r %s/%s.fastq" % (
+        str(readfile), sample)
         if target_format == "AA" or target_format == "aa":
-            assemble_cmd= str(assemble_cmd) + " -t_aa %s" % targetfile
+            assemble_cmd = str(assemble_cmd) + " -t_aa %s" % targetfile
         elif target_format == "DNA" or target_format == "dna":
             assemble_cmd = str(assemble_cmd) + " -t_dna %s" % targetfile
         assemble_cmd = str(assemble_cmd) + " --prefix %s" % sample
@@ -87,15 +174,42 @@ def construct_assemble_commands(readfile, samplenames, target_format, targetfile
 
 
 def construct_stats_command():
+    """In the future, will generate the hybpiper stats command
+    (currently uses a static pre-written command for testing)
+
+                Returns
+                -------
+                stat_cmd : str
+                    A string with the run_hybpiper_stats command
+    """
     stat_cmd = "hybpiper stats -t_dna test_targets.fasta gene namelist.txt"
     return stat_cmd
 
+
 def construct_heatmap_command():
+    """In the future, will generate the hybpiper generate_heatmap command.
+        (currently uses a static pre-written command for testing)
+
+                    Returns
+                    -------
+                    heatmap_cmd : str
+                        A string with the generate_heatmap command
+    """
     heatmap_cmd = "hybpiper recovery_heatmap seq_lengths.tsv"
     return heatmap_cmd
 
 
 def construct_retrieve_commands():
+    """In the future, will generate the hybpiper retrieve sequences commands
+    and appends them to a list, then returns that list.
+    (currently uses static pre-written commands for testing)
+
+                        Returns
+                        -------
+                        retrieve_cmds : list
+                            A list of strings with the hybpiper retrieve
+                            sequences commands.
+    """
     retrieve_cmds = []
     retrieve_cmd_1 = "hybpiper retrieve_sequences -t_dna test_targets.fasta dna --sample_names namelist.txt --fasta_dir 01_dna_seqs"
     retrieve_cmd_2 = "hybpiper retrieve_sequences -t_dna test_targets.fasta aa --sample_names namelist.txt --fasta_dir 02_aa_seqs"
@@ -104,12 +218,24 @@ def construct_retrieve_commands():
 
     return retrieve_cmds
 
+
 def construct_paralog_command():
+    """In the future, will generate the hybpiper paralog retriever command
+        (currently uses a static pre-written command for testing)
+
+                    Returns
+                    -------
+                    paralog_cmd : str
+                        A string with the hybpiper paralog retriever command
+    """
     paralog_cmd = "hybpiper paralog_retriever namelist.txt -t_dna test_targets.fasta"
     return paralog_cmd
 
 
 def parseArgvs():
+    """This runs the argparse command in order to handle the input arguments
+    from the command line.
+    """
     parser = argparse.ArgumentParser(prog="generate_namelist.py",
                                      description="Script to create a file "
                                                  "containing the name of "
@@ -125,16 +251,23 @@ def parseArgvs():
     parser.add_argument("-t", "--targets", action="store", dest="targetfile",
                         help="The location of the input targetfile",
                         required=True)
-    parser.add_argument("-f", "--target_format", action="store", dest="target_format",
+    parser.add_argument("-f", "--target_format", action="store",
+                        dest="target_format",
                         help="The type of sequences the targets are comprised off, either DNA or Amino acids.",
                         required=True)
     parser.add_argument("-e", "--engine", action="store", dest="search_engine",
-                        help="Which method Hybpiper uses to map the sequences to the targets.", required=True)
-    parser.add_argument("-i", "--intronerate", action="store", dest="intronerate_bool",
-                        help="Whether Hybpiper should extract the introns using intronerate", required=False)
-    parser.add_argument("-m", "--heatmap_bool", action="store", dest="heatmap_bool",
-                        help="Whether hybpiper should generate a heatmap of the gene recovery", required=False)
-    parser.add_argument("-g", "--output_g", action="store", dest="output_galaxy",
+                        help="Which method Hybpiper uses to map the sequences to the targets.",
+                        required=True)
+    parser.add_argument("-i", "--intronerate", action="store",
+                        dest="intronerate_bool",
+                        help="Whether Hybpiper should extract the introns using intronerate",
+                        required=False)
+    parser.add_argument("-m", "--heatmap_bool", action="store",
+                        dest="heatmap_bool",
+                        help="Whether hybpiper should generate a heatmap of the gene recovery",
+                        required=False)
+    parser.add_argument("-g", "--output_g", action="store",
+                        dest="output_galaxy",
                         help="The path location where the output should go for Galaxy",
                         required=False)
     argvs = parser.parse_args()
@@ -154,26 +287,23 @@ def main():
 
     filenameslist = get_file_names(readfile)
     samplenameslist = get_sample_names(filenameslist, True)
-    # filenameslist = get_sample_names(filenames, True)
-    ## Write samplenames to namelist.txt
-    # if output_location == None:
-    #     write_Samplenames_to_file(samplenameslist)
-    # else:
-    #     write_Samplenames_to_file(samplenameslist, output_location)
-    cmds = construct_assemble_commands(readfile, filenameslist, target_format, targetfile, search_method, intronerate_bool)
 
+    # Generate Hybpiper commands
+    cmds = construct_assemble_commands(readfile, filenameslist, target_format,
+                                       targetfile, search_method,
+                                       intronerate_bool)
     stats_cmd = construct_stats_command()
     heatmap_cmd = construct_heatmap_command()
     retrieve_cmds = construct_retrieve_commands()
     paralog_cmd = construct_paralog_command()
 
-
     # write commands to .txt file
     write_commands_to_file(cmds, output_location, overwrite=True)
-    #write_commands_to_file([stats_cmd])
-    #write_commands_to_file([heatmap_cmd])
-    #write_commands_to_file(retrieve_cmds)
-    #write_commands_to_file([paralog_cmd])
+    # write_commands_to_file([stats_cmd])
+    # write_commands_to_file([heatmap_cmd])
+    # write_commands_to_file(retrieve_cmds)
+    # write_commands_to_file([paralog_cmd])
+
 
 if __name__ == '__main__':
     main()

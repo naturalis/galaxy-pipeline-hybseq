@@ -1,4 +1,4 @@
-<tool id="hybpiper" name="HybPiper Assemble" version="1.0.1">
+<tool id="hybpiper" name="HybPiper Assemble" version="1.0.2">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -55,6 +55,7 @@
         they are a pair.
 
         .. class:: infomark
+
         Example: NG440_R1_test.fastq and NG440_R2_test.fastq
 
 
