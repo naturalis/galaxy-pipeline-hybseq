@@ -19,7 +19,7 @@ printf "Bash version: ${BASH_VERSION}\n\n" >&1
 # sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
 #
 #
-# version 1.0.2
+# version 1.0.3
 
 runHybpiperAssemble() {
     (
@@ -99,7 +99,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [x.x.x]"
+            echo "hybpiper_assemble.sh [1.0.3]"
             echo ""
 
             exit

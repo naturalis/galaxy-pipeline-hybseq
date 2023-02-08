@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Version: 1.0.2
+Version: 1.0.3
 Author: Jeremy van Veen
 
 Description:
@@ -18,7 +18,7 @@ and execute them to run the Hybpiper pipeline as intended.
 import os, argparse
 
 
-def get_file_names(directory):
+def get_file_names(directory, remove_file_extentions=True):
     """Iterates through a specified directory and returns a list with
     the file names (without the extention)
     Useful for getting the names of the sample.
@@ -27,6 +27,9 @@ def get_file_names(directory):
         ----------
         directory : str
             The file containing the files to iterate through
+        remove_file_extentions : bool
+            A boolean indicating whether the function should remove
+            file extentions or keep them.
 
         Returns
         -------
@@ -41,10 +44,18 @@ def get_file_names(directory):
         file = os.path.join(directory, filename)
         # checking if it is a file
         if os.path.isfile(file):
+            # Make sure all slash charactersare the same
+            file = file.replace('\\', '/')
             # split off extentions
-            file_list = file.split('.')
-            # remove directory path/extentions and keep file name
-            filenames.append(file_list[0][1 + len(directory):])
+            file_list = file.split('/')
+            extracted_filename = file_list[-1:][0]
+            # remove directory path/extentions and keep file name if
+            # boolean is not true
+            if remove_file_extentions:
+                cut_filename = extracted_filename.split('.')
+                filenames.append(cut_filename[0])
+            else:
+                filenames.append(extracted_filename)
     return filenames
 
 
@@ -88,7 +99,7 @@ def get_sample_names(filenames, unique=False):
     return samplenames_list
 
 
-def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt",
+def write_commands_to_file(to_write_list, outputlocation=".", outputfilename = 'cmdfile.txt',
                            overwrite=False):
     """Iterates through a list, and writes each element to a new line in the
     specified output file.
@@ -100,6 +111,10 @@ def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt",
                     to the output file.
                 outputlocation : str
                     A string with the path to where the outputfile should be
+                    by default the output directory is the current
+                    working directory
+                outputfilename : str
+                    A string with the path to where the outputfile should be
                     by default the output file is a txt file called
                     'cmdfile.txt' in the same directory as the script.
                 overwrite : bool
@@ -107,7 +122,7 @@ def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt",
                     reset. If false, output is apended to the output file, if
                     True, the output file is emptied before being written to.
     """
-    file = outputlocation
+    file = str(outputlocation) + '/%s' % outputfilename
     if overwrite:
         resetfile = open(file, "w")
         resetfile.close()
@@ -116,8 +131,9 @@ def write_commands_to_file(to_write_list, outputlocation="cmdfile.txt",
             outfile.write(element + "\n")
 
 
-def construct_assemble_commands(readfile, samplenames, target_format,
-                                targetfile, search_engine, intronerate_bool):
+def construct_assemble_commands(readfile, filenames, samplenames,
+                                target_format, targetfile,
+                                search_engine, intronerate_bool):
     """The function assembles the hybpiper assemble command
     It does this by appending a template string with the proper flags according
     to the state of the arguments. Using this method, it assembles one
@@ -129,8 +145,11 @@ def construct_assemble_commands(readfile, samplenames, target_format,
                 readfile : str
                     A string resembling the path to the folder with the read
                     fastq file.
+                filenames : list
+                    A list containing the names of all the files.
                 samplenames : list
-                    A list containing the names of all the samples.
+                    A list containing the names of all the samples (different
+                    from filenames).
                 target_format : str
                     The list with all the full filenames
                 targetfile : str
@@ -151,15 +170,16 @@ def construct_assemble_commands(readfile, samplenames, target_format,
                     form of strings.
             """
     assemble_cmds = []
-    for sample in samplenames:
-        assemble_cmd = "hybpiper assemble -r %s/%s.fastq" % (
-        str(readfile), sample)
+    for file in filenames:
+        assemble_cmd = "hybpiper assemble -r %s/%s" % (
+        str(readfile), file)
         if target_format == "AA" or target_format == "aa":
             assemble_cmd = str(assemble_cmd) + " -t_aa %s" % targetfile
         elif target_format == "DNA" or target_format == "dna":
             assemble_cmd = str(assemble_cmd) + " -t_dna %s" % targetfile
-        assemble_cmd = str(assemble_cmd) + " --prefix %s" % sample
-
+        for sample in samplenames:
+            if sample in file.split('_'):
+                assemble_cmd = str(assemble_cmd) + " --prefix %s" % sample
         if search_engine == "diamond":
             assemble_cmd = str(assemble_cmd) + " --diamond"
         elif search_engine == "bwa":
@@ -241,7 +261,7 @@ def parseArgvs():
                                                  "containing the name of "
                                                  "every sample in the readfile ")
     parser.add_argument("-v", "--version", action="version",
-                        version="generate_namelist.py 1.0.1")
+                        version="generate_hybpiper_commands.py 1.0.3")
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
                         required=True)
@@ -266,9 +286,10 @@ def parseArgvs():
                         dest="heatmap_bool",
                         help="Whether hybpiper should generate a heatmap of the gene recovery",
                         required=False)
-    parser.add_argument("-g", "--output_g", action="store",
-                        dest="output_galaxy",
-                        help="The path location where the output should go for Galaxy",
+    parser.add_argument("-n", "--namelist", action="store",
+                        dest="write_namelist",
+                        help="Boolean that indicates whether the script should"
+                             "write prefixes to a file called 'namelist.txt'",
                         required=False)
     argvs = parser.parse_args()
     return argvs
@@ -281,21 +302,22 @@ def main():
     target_format = argvs.target_format
     search_method = argvs.search_engine
     intronerate_bool = argvs.intronerate_bool
-    galaxy_output_location = argvs.output_galaxy
     heatmap_bool = argvs.heatmap_bool
     output_location = argvs.output_path
+    write_namelist = argvs.write_namelist
 
-    filenameslist = get_file_names(readfile)
+    filenameslist = get_file_names(readfile, False)
     samplenameslist = get_sample_names(filenameslist, True)
 
     # Generate Hybpiper commands
-    cmds = construct_assemble_commands(readfile, filenameslist, target_format,
-                                       targetfile, search_method,
-                                       intronerate_bool)
-    stats_cmd = construct_stats_command()
-    heatmap_cmd = construct_heatmap_command()
-    retrieve_cmds = construct_retrieve_commands()
-    paralog_cmd = construct_paralog_command()
+    cmds = construct_assemble_commands(readfile, filenameslist,
+                                       samplenameslist,
+                                       target_format, targetfile,
+                                       search_method, intronerate_bool)
+    #stats_cmd = construct_stats_command()
+    #heatmap_cmd = construct_heatmap_command()
+    #retrieve_cmds = construct_retrieve_commands()
+    #paralog_cmd = construct_paralog_command()
 
     # write commands to .txt file
     write_commands_to_file(cmds, output_location, overwrite=True)
@@ -303,6 +325,11 @@ def main():
     # write_commands_to_file([heatmap_cmd])
     # write_commands_to_file(retrieve_cmds)
     # write_commands_to_file([paralog_cmd])
+
+    # Write namelist.txt
+    if write_namelist == 'y' or write_namelist:
+        write_commands_to_file(samplenameslist, output_location,
+                               "namelist.txt", overwrite=True)
 
 
 if __name__ == '__main__':
