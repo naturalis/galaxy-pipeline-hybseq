@@ -2,12 +2,12 @@
 
 
 # sanity check
-printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
-printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
-printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
-printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
-printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
-printf "Bash version: ${BASH_VERSION}\n\n" >&1
+#printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
+#printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
+#printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
+#printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
+#printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
+#printf "Bash version: ${BASH_VERSION}\n\n" >&1
 
 # The runHybpiperAssemble function calls the python script, which,
 # generates the nessesary hybpiper commands based on the inputs and writes
@@ -19,34 +19,45 @@ printf "Bash version: ${BASH_VERSION}\n\n" >&1
 # sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
 #
 #
-# version 1.0.3
+# version 1.0.4
+#
+#Directories:
+#scripts: /home/eremus007/Desktop/Hybpiper/scripts
+#input:  /home/eremus007/Desktop/Hybpiper/input_files
+#working dir: /home/eremus007/Desktop/Hybpiper/working_dir
 
 runHybpiperAssemble() {
     (
-    strScriptDir=$(dirname "$(readlink -f "$0")")
-#    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
-    base_location=$(echo ${outputzip} | egrep -o '^.*files')
-#    base_location="/home/eremus007/Desktop/Hybpiper/final_output/"
+#    strScriptDir=$(dirname "$(readlink -f "$0")")
+    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
+#    base_location=$(echo ${outputzip} | egrep -o '^.*files')
+    base_location="/home/eremus007/Desktop/Hybpiper"
     strDirectory=$(mktemp -d ${base_location}/XXXXXX)
+    workingDir="/home/eremus007/Desktop/Hybpiper/working_dir"
+    cd ${workingDir}
 
     mkdir -p "${strDirectory}_temp"
     mkdir -p "${strDirectory}_temp/outputfile/"
-    outputDirectory=$(dirname "${readfiles}")
+
+    #outputDirectory=$(dirname "${readfiles}")
 
 
     #Unzip readfile zip and copy to proper location
     unzip ${readfiles} -d ${strDirectory}_temp/raw_reads
-    rawReadsFile="${strDirectory}_temp/raw_reads"
+    cp -rf ${strDirectory}_temp/raw_reads ${workingDir}/raw_reads
+    cp ${targetfile} ${workingDir}/targetfile.fasta
+    rawReadsFile="${workingDir}/raw_reads"
 
     # Generate Hybpiper commands
      python3 ${strScriptDir}/generate_hybpiper_commands.py \
         -r ${rawReadsFile} \
-        -o "${strDirectory}_temp/cmdfile.txt" \
-        -t ${targetfile} \
+        -o "${strDirectory}_temp/" \
+        -t "${workingDir}/targetfile.fasta" \
         -f ${target_format} \
         -e ${search_engine} \
         -i ${intronerate_bool} \
-        -m ${heatmap_bool}
+        -m ${heatmap_bool} \
+        -n "y"
 
     # Execute generated Hybpiper commands
     while read cmd_to_execute
@@ -55,7 +66,7 @@ runHybpiperAssemble() {
       done < "${strDirectory}_temp/cmdfile.txt"
 
     # move everything to proper location
-    cp -r ${outputDirectory}/* ${strDirectory}_temp/outputfile/
+    cp -r ${workingDir}/* ${strDirectory}_temp/outputfile/
 
     # Zip the correct output files in the temporary directory
     zip -r ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/outputfile/*
@@ -63,9 +74,9 @@ runHybpiperAssemble() {
     cp ${strDirectory}_temp/tempzip.zip ${outputzip}
 
     # Delete remaining temporary files
-    rm -rf ${strDirectory}_temp
+    #rm -rf ${strDirectory}_temp
 
-    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
+    ) #> /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
 }
 
 # The main function.
@@ -99,7 +110,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [1.0.3]"
+            echo "hybpiper_assemble.sh [1.0.4]"
             echo ""
 
             exit
