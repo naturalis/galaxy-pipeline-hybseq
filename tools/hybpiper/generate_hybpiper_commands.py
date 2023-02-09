@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 '''
+Version: 1.0.5
+Author: Jeremy van Veen
+
 Description:
 
 This script takes several inputs using the argparse command, with which it
@@ -258,7 +261,7 @@ def parseArgvs():
                                                  "containing the name of "
                                                  "every sample in the readfile ")
     parser.add_argument("-v", "--version", action="version",
-                        version="generate_hybpiper_commands.py 1.0.4")
+                        version="generate_hybpiper_commands.py 1.0.5")
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
                         required=True)

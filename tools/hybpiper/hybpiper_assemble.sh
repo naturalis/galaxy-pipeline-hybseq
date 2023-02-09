@@ -18,10 +18,9 @@
 # Usage:
 # sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
 #
-#Directories:
-#scripts: /home/eremus007/Desktop/Hybpiper/scripts
-#input:  /home/eremus007/Desktop/Hybpiper/input_files
-#working dir: /home/eremus007/Desktop/Hybpiper/working_dir
+#
+# version 1.0.5
+#
 
 runHybpiperAssemble() {
     (
@@ -29,26 +28,27 @@ runHybpiperAssemble() {
     strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
 #    base_location=$(echo ${outputzip} | egrep -o '^.*files')
     base_location="/home/eremus007/Desktop/Hybpiper"
-    strDirectory=$(mktemp -d ${base_location}/XXXXXX)
-    workingDir="/home/eremus007/Desktop/Hybpiper/working_dir"
-    cd ${workingDir}
+    strDirectory=$(mktemp -d ${base_location}/XXXXXX_temp)
+    workingDir="${strDirectory}/working_dir"
+    #tempfilename=$(basename "${strDirectory}")
 
-    mkdir -p "${strDirectory}_temp"
-    mkdir -p "${strDirectory}_temp/outputfile/"
+    mkdir -p ${workingDir}
+    mkdir -p "${strDirectory}/outputfile/"
+
+    cd ${workingDir}
 
     #outputDirectory=$(dirname "${readfiles}")
 
 
     #Unzip readfile zip and copy to proper location
-    unzip ${readfiles} -d ${strDirectory}_temp/raw_reads
-    cp -rf ${strDirectory}_temp/raw_reads ${workingDir}/raw_reads
+    unzip ${readfiles} -d ${workingDir}/raw_reads
     cp ${targetfile} ${workingDir}/targetfile.fasta
     rawReadsFile="${workingDir}/raw_reads"
 
     # Generate Hybpiper commands
      python3 ${strScriptDir}/generate_hybpiper_commands.py \
         -r ${rawReadsFile} \
-        -o "${strDirectory}_temp/" \
+        -o "${strDirectory}" \
         -t "${workingDir}/targetfile.fasta" \
         -f ${target_format} \
         -e ${search_engine} \
@@ -60,20 +60,22 @@ runHybpiperAssemble() {
     while read cmd_to_execute
       do
         eval "${cmd_to_execute}"
-      done < "${strDirectory}_temp/cmdfile.txt"
+      done < "${strDirectory}/cmdfile.txt"
 
-    # move everything to proper location
-    cp -r ${workingDir}/* ${strDirectory}_temp/outputfile/
+    # move everything to proper location but before that remove the copies of the input files so they don't get copied with
+    rm -r ${rawReadsFile}
+    rm ${workingDir}/targetfile.fasta
+    cp -rf ${workingDir}/* ${strDirectory}/outputfile/
 
     # Zip the correct output files in the temporary directory
-    zip -r ${strDirectory}_temp/tempzip.zip ${strDirectory}_temp/outputfile/*
+    7z a ${strDirectory}/tempzip.zip ${strDirectory}/outputfile/*
     # Copy the zip file to the galaxy data.dat
-    cp ${strDirectory}_temp/tempzip.zip ${outputzip}
+    cp ${strDirectory}/tempzip.zip ${outputzip}
 
     # Delete remaining temporary files
-    #rm -rf ${strDirectory}_temp
+    rm -rf ${strDirectory}
 
-    ) #> /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
+    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
 }
 
 # The main function.
@@ -107,7 +109,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [1.0.4]"
+            echo "hybpiper_assemble.sh [1.0.3]"
             echo ""
 
             exit

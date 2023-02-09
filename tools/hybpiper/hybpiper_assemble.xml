@@ -1,10 +1,11 @@
-<tool id="hybpiper" name="HybPiper Assemble" version="1.0.4">
+<tool id="hybpiper" name="HybPiper Assemble" version="1.0.5">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
-        <requirement type="package">hybpiper</requirement> 
+        <requirement type="package">hybpiper</requirement>
         <requirement type="package">blast</requirement>
         <requirement type="package">mafft</requirement>
+        <requirement type="package">p7zip</requirement>
 </requirements>
     <command><![CDATA[
         bash "$__tool_directory__/hybpiper_assemble.sh"
@@ -55,7 +56,7 @@
         they are a pair.
 
         .. class:: infomark
-
+        
         Example: NG440_R1_test.fastq and NG440_R2_test.fastq
 
 
