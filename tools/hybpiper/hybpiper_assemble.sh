@@ -19,7 +19,7 @@
 # sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
 #
 #
-# version 1.0.5
+# version 1.1.0
 #
 
 runHybpiperAssemble() {
@@ -109,7 +109,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [1.0.3]"
+            echo "hybpiper_assemble.sh [1.1.0]"
             echo ""
 
             exit
