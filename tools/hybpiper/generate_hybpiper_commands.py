@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 '''
-Version: 1.0.4
-Author: Jeremy van Veen
-
 Description:
 
 This script takes several inputs using the argparse command, with which it
