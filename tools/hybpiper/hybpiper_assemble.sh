@@ -18,9 +18,6 @@
 # Usage:
 # sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
 #
-#
-# version 1.0.4
-#
 #Directories:
 #scripts: /home/eremus007/Desktop/Hybpiper/scripts
 #input:  /home/eremus007/Desktop/Hybpiper/input_files
