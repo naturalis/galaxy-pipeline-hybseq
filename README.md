@@ -1,5 +1,7 @@
 # galaxy-pipeline-hybseq
 
+## This is a tagged version of an attempt to implement Hybpiper/Galaxy in separate steps, abandoned by @Eremus007
+
 HybSeq is a data generation technique that constitutes a hybrid between shotgun high-throughput sequencing
 and amplicon sequencing. The technique results in markers suitable for phylogenomics (because they are 
 single copy, universally present, and evolve at the optimal rate) by targeted sequencing using predefined
