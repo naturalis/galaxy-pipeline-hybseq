@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
 '''
-Version: 1.1.0
-Author: Jeremy van Veen
-
-Description:
-
 This script takes several inputs using the argparse command, with which it
 generates the commands needed to run Hybpiper.
 
@@ -61,10 +56,10 @@ def get_file_names(directory, remove_file_extentions=True):
 
 def get_sample_names(filenames, unique=False):
     """Iterates through a list of filenames, splits the filenames on every
-    underscore they contain, and appends only the part before the first under
-    score to the list it returns.
+    underscore they contain, and appends only the part before the first
+    underscore to the list it returns.
     The output is a list containing just the sample name, and none of the other
-    extentions like _R1 or _test
+    extensions like _R1 or _test
 
             Parameters
             ----------
@@ -261,7 +256,7 @@ def parseArgvs():
                                                  "containing the name of "
                                                  "every sample in the readfile ")
     parser.add_argument("-v", "--version", action="version",
-                        version="generate_hybpiper_commands.py 1.1.0")
+                        version="generate_hybpiper_commands.py 1.1.1")
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
                         required=True)

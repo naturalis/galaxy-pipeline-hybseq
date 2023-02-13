@@ -1,4 +1,4 @@
-<tool id="hybpiper" name="HybPiper Assemble" version="1.1.0">
+<tool id="hybpiper" name="HybPiper Assemble" version="1.0.1">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>

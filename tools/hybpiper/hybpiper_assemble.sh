@@ -1,14 +1,5 @@
 #!/bin/bash
 
-
-# sanity check
-#printf "Conda env: $CONDA_DEFAULT_ENV\n" >&1
-#printf "Biopython version: $(conda list | egrep biopython | awk '{print $2}')\n" >&1
-#printf "Samtools version: $(conda list | egrep samtools | awk '{print $2}')\n" >&1
-#printf "Unzip version: $(unzip -v | head -n1 | awk '{print $2}')\n" >&1
-#printf "Zip version: $(zip -v | head -n1 | awk '{print $2}')\n" >&1
-#printf "Bash version: ${BASH_VERSION}\n\n" >&1
-
 # The runHybpiperAssemble function calls the python script, which,
 # generates the nessesary hybpiper commands based on the inputs and writes
 # them to a .txt file.
@@ -16,24 +7,22 @@
 # one by one.
 #
 # Usage:
-# sh hybpiper_assemble.sh -r [readfiles.zip] -o [NAME_FOR_OUTPUT.zip] -t [test_targets.fasta] -f [dna/aa] -e [bwa/diamond/default] -i [y/n] -m [y/n]
+# sh hybpiper_assemble.sh -r <readfiles.zip> -o <NAME_FOR_OUTPUT.zip> -t <test_targets.fasta> -f <dna/aa> -e <bwa/diamond/default> -i <y/n> -m <y/n>
 #
-#
-# version 1.1.0
 #
 
 runHybpiperAssemble() {
     (
-#    strScriptDir=$(dirname "$(readlink -f "$0")")
-    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
-#    base_location=$(echo ${outputzip} | egrep -o '^.*files')
-    base_location="/home/eremus007/Desktop/Hybpiper"
+    strScriptDir=$(dirname "$(readlink -f "$0")")
+#    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
+    base_location=$(echo ${outputzip} | egrep -o '^.*files')
+#    base_location="/home/eremus007/Desktop/Hybpiper"
     strDirectory=$(mktemp -d ${base_location}/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
-    #tempfilename=$(basename "${strDirectory}")
 
     mkdir -p ${workingDir}
     mkdir -p "${strDirectory}/outputfile/"
+    mkdir -p "${workingDir}/raw_reads"
 
     cd ${workingDir}
 
@@ -75,7 +64,7 @@ runHybpiperAssemble() {
     # Delete remaining temporary files
     rm -rf ${strDirectory}
 
-    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr (hopefully)
+    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr
 }
 
 # The main function.
@@ -109,7 +98,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [1.1.0]"
+            echo "hybpiper_assemble.sh [1.1.1]"
             echo ""
 
             exit
