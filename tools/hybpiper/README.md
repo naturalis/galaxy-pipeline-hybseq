@@ -52,7 +52,7 @@ In these diagrams, the large Squares resemble an environment or instance in whic
 * Usually ran through Ubuntu or a Linux-based Operating System
 * Reads and target file in Ubuntu directory
 * User types in HybPiper commands and specifies where the input files can be found, as well as the optional flags for different results
-* HybPiper is installed and run inside a Conda environment and generates its output
+* HybPiper is installed and run inside a Conda environment and generates its output inside the diretory where the input and output files are located
 
 ### HybPiper Galaxy
 
@@ -60,9 +60,9 @@ In these diagrams, the large Squares resemble an environment or instance in whic
 
 * Reads and Target file uploaded to Galaxy Instance and specified in the Galaxy tool
 * Options and arguments are also handled by the user in the galaxy tool
-* Upon hitting the 'execute button' the options and arguments are sent to the shell script which then ensures the inputs go to the proper locations before running the command generator python script
+* Upon hitting the 'execute' button the options and arguments are sent to the shell script which then ensures the inputs go to the proper locations before running the command generator python script
 * Python script generates the HybPiper commands one would normally type out themselves and writes them to a file called 'cmdfile.txt'
-* cmdfile.txt is then iterated through by the shell script and executes them one by one.
+* *cmdfile.txt* is then iterated through by the shell script and executes the commands one by one.
 * HybPiper is run, as normal, inside the Conda environment and generates its output
 * Output is then copied to a ZIP file and caught by Galaxy
 
