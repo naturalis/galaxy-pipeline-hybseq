@@ -62,7 +62,7 @@ In these diagrams, the large Squares resemble an environment or instance in whic
 * Options and arguments are also handled by the user in the galaxy tool
 * Upon hitting the 'execute' button the options and arguments are sent to the shell script which then ensures the inputs go to the proper locations before running the command generator python script
 * Python script generates the HybPiper commands one would normally type out themselves and writes them to a file called 'cmdfile.txt'
-* *cmdfile.txt* is then iterated through by the shell script and executes the commands one by one.
+* *cmdfile.txt* is then iterated through by the shell script which executes the commands one by one.
 * HybPiper is run, as normal, inside the Conda environment and generates its output
 * Output is then copied to a ZIP file and caught by Galaxy
 
