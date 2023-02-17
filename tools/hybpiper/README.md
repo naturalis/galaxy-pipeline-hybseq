@@ -137,8 +137,8 @@ sh run.sh
 ## Things to take into account
 
 * Make sure your Galaxy portal server has enough storage space to store the input files twice, due to a current limitation of HybPiper the input files need to be copied to the proper folder as a workaround, which means twice the storage space until the tool finishes its run and the duplicate files are deleted. 
-* The input readfiles should be paired reads and should be named something like: 
-*'\<samplename\>\_R1\_\<optional_extra_name_parts\>.fastq'*
+* The input readfiles should be paired reads and should be named something like: \
+*'\<samplename\>\_R1\_\<optional_extra_name_parts\>.fastq'* \
 *'\<samplename\>\_R2\_\<optional_extra_name_parts\>.fastq'* \
 This is to make sure the *generate_hybpiper_commands.py* can properly isolate the first part of the filename so it can use this samplename for the prefix of the output folders.  
 So the paired samples should have the same sample name for the part before the first underscore.
