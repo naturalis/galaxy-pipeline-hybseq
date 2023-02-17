@@ -42,8 +42,8 @@ The *namelist.txt* contains all of the names of the samples that are used for th
 
 ## Figures
 
-![Original HybPiper]()\
-![HybPiper Galaxy]()
+![Original HybPiper](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Visualisation%20Original.png)\
+![HybPiper Galaxy](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Visualisation%20Galaxy.png)
 
 ## Dependencies
 
