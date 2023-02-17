@@ -1,4 +1,4 @@
-# HybPiper Galaxy Tool
+# Hyb-Seq in Galaxy
 
 ## Description
 
