@@ -1,17 +1,24 @@
-<tool id="yb_exract_Loci" name="HybPiper Extract Loci" version="0.0.9>
-<!--<description>quality trim reads</description>-->
-<requirements>
+<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="0.1.1">
+    <!--<description>quality trim reads</description>-->
+    <requirements>
         <requirement type="package" version="3.9">python</requirement>
         <requirement type="package">p7zip</requirement>
-</requirements>
+    </requirements>
     <command><![CDATA[
         bash "$__tool_directory__/extract_loci_sequences.sh"
-        -f ${hybpiper_output}
-        -o ${output}
+        -f "${hybpiper_output}"
+        -o "${output}"
+        -t "${file_type}"
     ]]></command>
     <inputs>
         <!-- Catch the input files and optional flags. -->
         <param name="hybpiper_output" type="data" format="zip" label="HybPiper output ZIP" />
+        <param name="file_type" type="select" display="radio" label="File Type"
+               help="Sequence format the script should extract from the loci">
+            <option value="FNA" selected="true">FNA</option>
+            <option value="FAA">FAA</option>
+            <option value="intron">Intron Sequences</option>
+        </param>
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
@@ -24,5 +31,9 @@
 
         Extract Loci Sequences from HybPiper output file
 
+        .. class:: warningmark
+
+        Only select the 'Intron Sequences' option if the 'Run intronerate'
+        option was used with the hybpiper tool
     </help>
 </tool>

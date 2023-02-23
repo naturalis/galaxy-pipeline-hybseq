@@ -15,36 +15,38 @@ runHybpiperExtractLoci() {
     (
     strScriptDir=$(dirname "$(readlink -f "$0")")
 #    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
-    base_location=$(echo ${outputzip} | egrep -o '^.*files')
+    # base_location=$(echo ${outputfolder} | egrep -o '^.*files')
+    base_location=$(dirname "${outputfolder}")
 #    base_location="/home/eremus007/Desktop/Hybpiper"
-    strDirectory=$(mktemp -d ${base_location}/XXXXXX_temp)
+    strDirectory=$(mktemp -d "${base_location}"/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
 
     # Create Temporary Directories
-    mkdir -p ${workingDir}
+    mkdir -p "${workingDir}"
     mkdir -p "${strDirectory}/outputfile/"
     mkdir -p "${workingDir}/hybpiper_output"
     mkdir -p "${workingDir}/extracted_loci"
 
     # Change the working directory to be a temporary folder
-    cd ${workingDir}
+    cd "${workingDir}" || exit
 
     # Unzip hybpiper output zip
-    unzip ${inputfolder} -d ${workingDir}/hybpiper_output
+    unzip "${inputfolder}" -d "${workingDir}"/hybpiper_output
 
     # Extract the loci sequences using python script
-     python3 ${strScriptDir}/extract_loci_sequences.py \
-        -f ${workingDir}/hybpiper_output \
-        -o ${workingDir}/extracted_loci
+     python3 "${strScriptDir}"/extract_loci_sequences.py \
+        -f "${workingDir}"/hybpiper_output \
+        -o "${workingDir}"/extracted_loci \
+        -t "${file_type}"
 
     # Zip the correct output files in the temporary directory
-    7z a ${strDirectory}/tempzip.zip ${workingDir}/extracted_loci/*
+    7z a "${strDirectory}"/tempzip.zip "${workingDir}"/extracted_loci/*
 
     # Copy the zip file to the galaxy data.dat
-    cp ${strDirectory}/tempzip.zip ${outputzip}
+    cp "${strDirectory}"/tempzip.zip "${outputfolder}"
 
     # Delete remaining temporary files
-    rm -rf ${strDirectory}
+    rm -rf "${strDirectory}"
 
     ) > /dev/null 2>&1 #This will make sure nothing is written to stderr
 }
@@ -55,7 +57,7 @@ main() {
 }
 
 # The getopts function.
-while getopts ":f:o:vh" opt; do
+while getopts ":f:o:t:vh" opt; do
     case ${opt} in
         f)
             inputfolder=${OPTARG}
@@ -63,9 +65,12 @@ while getopts ":f:o:vh" opt; do
         o)
             outputfolder=${OPTARG}
             ;;
+        t)
+            file_type=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "extract_loci_sequences.sh [0.0.9]"
+            echo "extract_loci_sequences.sh [0.1.1]"
             echo ""
 
             exit
@@ -75,6 +80,7 @@ while getopts ":f:o:vh" opt; do
             echo "Usage: sh extract_loci_sequences.sh [-h] [-v]       "
             echo "                 [-f HYBPIPER_OUTPUT_ZIP.zip        "
             echo "                 [-o OUTPUT_ZIP.zip]                "
+            echo "                 [-t FILE_TYPE]                     "
             echo ""
             echo "HybPiper was designed for targeted sequence capture,"
             echo "in which DNA sequencing libraries are enriched for gene regions of interest, especially for phylogenetics. "
