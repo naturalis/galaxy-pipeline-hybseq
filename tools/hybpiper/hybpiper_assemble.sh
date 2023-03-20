@@ -14,9 +14,7 @@
 runHybpiperAssemble() {
     (
     strScriptDir=$(dirname "$(readlink -f "$0")")
-#    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
-    base_location=$(echo ${outputzip} | egrep -o '^.*files')
-#    base_location="/home/eremus007/Desktop/Hybpiper"
+    base_location=$(dirname ${outputzip}) 
     strDirectory=$(mktemp -d ${base_location}/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
 
@@ -98,7 +96,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_assemble.sh [1.1.1]"
+            echo "hybpiper_assemble.sh [1.1.3]"
             echo ""
 
             exit
