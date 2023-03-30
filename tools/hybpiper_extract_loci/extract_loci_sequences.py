@@ -58,9 +58,40 @@ def extract_loci(input_dir, output_dir, file_option="FNA"):
                                                    sample_dir + "_" + gene_dir
                                                    + "." + "%s"
                                                    % output_file_dir)
-                    print(output_file)
+                    #print(output_file)
                     # Copy the file to the output directory
                     shutil.copy(os.path.join(fna_dir, fna_file), output_file)
+                    # Sort files by gene
+                    sort_files(output_dir)
+
+#sh extract_loci_sequences.sh" -f ".\hybpiper_output" -o ".\extracted_loci" -t FNA
+
+def sort_files(loci_folder_path):
+    # Create a generator expression to loop over all the loci files one at a time
+    loci_files = (f for f in os.listdir(loci_folder_path) if
+                  os.path.isfile(os.path.join(loci_folder_path, f)))
+
+    # Loop over all the loci files
+    for loci_file in loci_files:
+        # Remove extention
+        file_parts = loci_file.split(".")[0]
+        # Split the file name into its components
+        file_parts = file_parts.split('_')
+        sample_name = file_parts[0]
+        gene_number = file_parts[1].replace('gene', '')
+
+        # Create the folder name
+        gene_folder_name = 'gene{}_{}'.format(gene_number, loci_file.split(".")[1])
+
+        # Create the gene folder if it doesn't already exist
+        gene_folder_path = os.path.join(loci_folder_path, gene_folder_name)
+        os.makedirs(gene_folder_path, exist_ok=True)
+
+        # Move the file into the gene folder
+        old_file_path = os.path.join(loci_folder_path, loci_file)
+        shutil.move(old_file_path, gene_folder_path)
+
+
 
 
 def parse_argvs():
@@ -72,7 +103,7 @@ def parse_argvs():
                                                  "sequences from standard "
                                                  " HybPiper output folder.")
     parser.add_argument("-v", "--version", action="version",
-                        version="extract_loci_sequences.py 0.1.1")
+                        version="extract_loci_sequences.py 0.1.5")
     parser.add_argument("-f", "--hybpiper_folder", action="store",
                         dest="input_path",
                         help="The path/location where the script should "
