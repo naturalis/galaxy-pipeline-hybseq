@@ -19,6 +19,12 @@ With these Galaxy tools, the aim is to make HybPiper and Hyb-Seq data analysis a
 
 Guides, documentation and tutorials on how to use HybPiper in general. Are already available at the original [HybPiper GitHub repository](https://github.com/mossmatters/HybPiper/wiki "HybPiper Github Wiki").
 This Readme file goes into detail about the Galaxy tool wrapper itself. 
+Additional Wrapper files that with documentation that goes more in-depth, can be found in the /tools directory in each tool directory itself.
+Each tool has its own readme.md file with additional information.
+
+Links to each tool and their readme.md files here:
+### [HybPiper Tool](https://github.com/naturalis/galaxy-pipeline-hybseq/tree/main/tools/hybpiper)
+### [Extract Loci Tool](https://github.com/naturalis/galaxy-pipeline-hybseq/tree/main/tools/hybpiper_extract_loci)
 
 ## Tools
 
