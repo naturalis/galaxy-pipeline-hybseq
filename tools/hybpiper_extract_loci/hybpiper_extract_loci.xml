@@ -1,4 +1,4 @@
-<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="0.1.5">
+<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="0.1.6">
     <!--<description>quality trim reads</description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>

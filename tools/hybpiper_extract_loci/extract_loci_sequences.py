@@ -3,7 +3,7 @@
 """
 This script needs to be directed to the HybPiper output folder.
 It then extracts all the fasta files from the loci that were generated
-by the HybPiper pipeline.
+by the HybPiper pipeline, and sorts them per gene.
 
 These fasta files can then be used to create several MSA's
 (multiple sequence alignments) for phylogenetic analysis.
@@ -14,6 +14,21 @@ import argparse
 
 
 def extract_loci(input_dir, output_dir, file_option="FNA"):
+    """Goes through the HybPiper output files and searches for the specified
+    file extentions, then copies every sequence file that matches the search
+    extention to a seperate folder before calling the sort_files() function.
+        Parameters
+        ----------
+        input_dir : str
+            A string with the specified absolute path to the folder
+            where the hybpiper output directory can be found
+        output_dir : str
+            A string with the specified absolute path to the directory
+            where the sequence files should be extracted to.
+        file_option : str
+            A string indicating what extention to look for options are
+            ('FNA', 'FAA' and 'intron')
+    """
     allowed_options = ["FNA", "FAA", "intron"]
     fna_dir_ext, path_dir_ext, output_file_dir = file_option, file_option, \
         file_option
@@ -64,13 +79,23 @@ def extract_loci(input_dir, output_dir, file_option="FNA"):
                     # Sort files by gene
                     sort_files(output_dir)
 
-#sh extract_loci_sequences.sh" -f ".\hybpiper_output" -o ".\extracted_loci" -t FNA
 
 def sort_files(loci_folder_path):
-    # Create a generator expression to loop over all the loci files one at a time
+    """Iterates through the folder specified in the arguments and sorts the
+    sequence files that are present by the gene number in the filename.
+    A folder is created for each gene number present and numbers are then
+    sorted into said folders.
+            Parameters
+            ----------
+            loci_folder_path : str
+                A string with the specified absolute path to the folder
+                where the sequence files are located, that need to be
+                sorted per gene.
+    """
+    # Create a generator expression to loop over
+    # all the loci files one at a time
     loci_files = (f for f in os.listdir(loci_folder_path) if
                   os.path.isfile(os.path.join(loci_folder_path, f)))
-
     # Loop over all the loci files
     for loci_file in loci_files:
         # Remove extention
@@ -79,14 +104,12 @@ def sort_files(loci_folder_path):
         file_parts = file_parts.split('_')
         sample_name = file_parts[0]
         gene_number = file_parts[1].replace('gene', '')
-
         # Create the folder name
-        gene_folder_name = 'gene{}_{}'.format(gene_number, loci_file.split(".")[1])
-
+        gene_folder_name = 'gene{}_{}'.format(gene_number,
+                                              loci_file.split(".")[1])
         # Create the gene folder if it doesn't already exist
         gene_folder_path = os.path.join(loci_folder_path, gene_folder_name)
         os.makedirs(gene_folder_path, exist_ok=True)
-
         # Move the file into the gene folder
         old_file_path = os.path.join(loci_folder_path, loci_file)
         shutil.move(old_file_path, gene_folder_path)
@@ -103,7 +126,7 @@ def parse_argvs():
                                                  "sequences from standard "
                                                  " HybPiper output folder.")
     parser.add_argument("-v", "--version", action="version",
-                        version="extract_loci_sequences.py 0.1.5")
+                        version="extract_loci_sequences.py 0.1.6")
     parser.add_argument("-f", "--hybpiper_folder", action="store",
                         dest="input_path",
                         help="The path/location where the script should "
