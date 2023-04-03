@@ -37,7 +37,8 @@ runHybpiperExtractLoci() {
      python3 "${strScriptDir}"/extract_loci_sequences.py \
         -f "${workingDir}"/hybpiper_output \
         -o "${workingDir}"/extracted_loci \
-        -t "${file_type}"
+        -t "${file_type}" \
+        -c "${count_bool}"
 
     # Zip the correct output files in the temporary directory
     7z a "${strDirectory}"/tempzip.zip "${workingDir}"/extracted_loci/*
@@ -57,7 +58,7 @@ main() {
 }
 
 # The getopts function.
-while getopts ":f:o:t:vh" opt; do
+while getopts ":f:o:t:c:vh" opt; do
     case ${opt} in
         f)
             inputfolder=${OPTARG}
@@ -68,9 +69,12 @@ while getopts ":f:o:t:vh" opt; do
         t)
             file_type=${OPTARG}
             ;;
+        c)
+            count_bool=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "extract_loci_sequences.sh [0.1.6]"
+            echo "extract_loci_sequences.sh [0.2.1]"
             echo ""
 
             exit

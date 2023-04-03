@@ -115,6 +115,35 @@ def sort_files(loci_folder_path):
         shutil.move(old_file_path, gene_folder_path)
 
 
+def count_genes_per_sample(loci_folder_path, output_file_path):
+    # Create a dictionary to hold the counts for each sample
+    sample_counts = {}
+
+    # Loop over all the gene folders
+    for gene_folder_name in os.listdir(loci_folder_path):
+        # Ignore any files that are not directories
+        gene_folder_path = os.path.join(loci_folder_path, gene_folder_name)
+        if not os.path.isdir(gene_folder_path):
+            continue
+
+        # Loop over all the files in the gene folder
+        for file_name in os.listdir(gene_folder_path):
+            # Split the file name into its components
+            file_parts = file_name.split('_')
+            sample_name = file_parts[0]
+
+            # Increment the count for this sample
+            if sample_name in sample_counts:
+                sample_counts[sample_name] += 1
+            else:
+                sample_counts[sample_name] = 1
+
+    # Write the results to a text file
+    with open(str(output_file_path) + "/statistics.txt", 'w') as output_file:
+        output_file.write('Amount of sequence files per sample\n')
+        output_file.write('---\n')
+        for sample_name, count in sample_counts.items():
+            output_file.write('{}:\t{}\n'.format(sample_name, count))
 
 
 def parse_argvs():
@@ -126,7 +155,7 @@ def parse_argvs():
                                                  "sequences from standard "
                                                  " HybPiper output folder.")
     parser.add_argument("-v", "--version", action="version",
-                        version="extract_loci_sequences.py 0.1.6")
+                        version="extract_loci_sequences.py 0.2.1")
     parser.add_argument("-f", "--hybpiper_folder", action="store",
                         dest="input_path",
                         help="The path/location where the script should "
@@ -141,6 +170,10 @@ def parse_argvs():
                         help="options: FAA, FNA, intron the type of sequence "
                              "file the script is supposed to extract",
                         default="FNA")
+    parser.add_argument("-c", "--count", action="store", dest="count_bool",
+                        help="Whether or not to count the amount of sequence"
+                             "files per sample (may take longer if True)",
+                        default="False")
     argvs = parser.parse_args()
     return argvs
 
@@ -150,8 +183,12 @@ def main():
     input_path = argvs.input_path
     output_path = argvs.output_path
     file_option = argvs.file_option
+    count = argvs.count_bool
 
     extract_loci(input_path, output_path, file_option)
+
+    if count == "True":
+        count_genes_per_sample(output_path, output_path)
 
 
 if __name__ == '__main__':

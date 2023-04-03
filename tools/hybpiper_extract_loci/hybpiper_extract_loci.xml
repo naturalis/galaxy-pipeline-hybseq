@@ -1,4 +1,4 @@
-<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="0.1.6">
+<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="0.2.1">
     <!--<description>quality trim reads</description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -9,6 +9,7 @@
         -f "${hybpiper_output}"
         -o "${output}"
         -t "${file_type}"
+        -c "${count_bool}"
     ]]></command>
     <inputs>
         <!-- Catch the input files and optional flags. -->
@@ -19,6 +20,7 @@
             <option value="FAA">FAA</option>
             <option value="intron">Intron Sequences</option>
         </param>
+        <param name="count_bool" type="boolean" label="Count loci?" help="Count the amount of genes present for each locus and output the counts to a text file in the output archive." checked="True" truevalue="True" falsevalue="False" />
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
