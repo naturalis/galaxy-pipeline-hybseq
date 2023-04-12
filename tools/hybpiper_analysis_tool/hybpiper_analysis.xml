@@ -1,0 +1,31 @@
+<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="0.2.1">
+    <!--<description>quality trim reads</description>-->
+    <requirements>
+        <requirement type="package" version="3.9">python</requirement>
+        <requirement type="package">p7zip</requirement>
+    </requirements>
+    <command><![CDATA[
+        bash "$__tool_directory__/hybpiper_analysis.sh"
+        -f "${sequence_files}"
+        -o "${output}"
+    ]]></command>
+    <inputs>
+        <!-- Catch the input files and optional flags. -->
+        <param name="hybpiper_output" type="data" format="zip" label="HybPiper output ZIP" />
+    </inputs>
+    <outputs>
+        <!-- Catch the output file. -->
+        <data format="zip" type="data" name="output" label="Analysis output ZIP" />
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+        .. class:: infomark
+
+        Information to be written.
+
+        .. class:: warningmark
+
+        Warning to be written
+    </help>
+</tool>
