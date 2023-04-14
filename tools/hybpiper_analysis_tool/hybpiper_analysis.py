@@ -16,6 +16,9 @@ import sys
 from Bio.Align.Applications import MuscleCommandline
 from Bio import SeqIO, AlignIO
 from Bio.Application import ApplicationError
+from Bio.Align import MultipleSeqAlignment
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 
 def concatenate_loci(input_dir, output_dir):
@@ -105,51 +108,54 @@ def align_loci(input_dir, output_dir, output_format='.phy'):
 
     return alignment_dir
 
+def merge_alignments(align1, align2):
+    merged_dict = {}
+    for record in align1:
+        merged_dict[record.id] = str(record.seq)
+    for record in align2:
+        if record.id in merged_dict:
+            merged_dict[record.id] += str(record.seq)
+        else:
+            merged_dict[record.id] = "?" * len(align1[0].seq) + str(record.seq)
+    for record_id in merged_dict:
+        if len(merged_dict[record_id]) < len(align1[0].seq) + len(align2[0].seq):
+            merged_dict[record_id] += "?" * (len(align1[0].seq) + len(align2[0].seq) - len(merged_dict[record_id]))
+    merged_records = [SeqRecord(Seq(sequence), id=record_id, description="") for record_id, sequence in merged_dict.items()]
+    return MultipleSeqAlignment(merged_records)
 
-import os
 
-def create_supermatrix(input_folder, output_folder):
-    # Create a list of all the input file paths
-    input_files = [os.path.join(input_folder, f) for f in os.listdir(input_folder) if f.endswith('.phy')]
-
-    # Determine the number of loci and the length of the alignment for each file
-    num_loci = []
-    alignment_lengths = []
-    for file in input_files:
-        with open(file, 'r') as f:
-            num_sequences, alignment_length = f.readline().split()
-            num_sequences = int(num_sequences)
-            alignment_length = int(alignment_length)
-            num_missing = 0
-            for line in f:
-                if line.startswith(' '):
-                    num_missing += 1
-            num_samples = num_sequences - num_missing
-            num_loci.append(num_samples)
-            alignment_lengths.append(alignment_length)
-
-    # Create the partition definition block
-    num_partitions = len(num_loci)
-    partition_sizes = ['{}-{}'.format(sum(num_loci[:i])+1, sum(num_loci[:i+1])) for i in range(num_partitions)]
-    partition_types = ['DNA' for i in range(num_partitions)]
-    partition_def = '{} {} {}\n'.format(num_partitions, ' '.join(partition_types), ' '.join(partition_sizes))
-
-    # Create the partition.txt file
-    with open(os.path.join(output_folder, 'partition.txt'), 'w') as f:
-        for i in range(num_partitions):
-            f.write('{} locus{}\n'.format(partition_sizes[i], i+1))
-
-    # Create the output supermatrix file
-    with open(os.path.join(output_folder, 'supermatrix.phy'), 'w') as out_file:
-        out_file.write(partition_def)
-        for i in range(num_partitions):
-            with open(input_files[i], 'r') as in_file:
-                in_file.readline()
-                for line in in_file:
-                    if line.startswith(' '):
-                        out_file.write('?' * alignment_lengths[i] + '\n')
-                    else:
-                        out_file.write(line)
+def create_supermatrix(directory, output_dir):
+    # Initialize the concatenated alignment object and the partition dictionary
+    concatenated_alignment = None
+    partition_dict = {}
+    # Define the starting position for each partition
+    start_position = 1
+    # Iterate through the files in the directory and process those with the ".phy" extension
+    for filename in os.listdir(directory):
+        if filename.endswith(".phy"):
+            file_path = os.path.join(directory, filename)
+            alignment = AlignIO.read(file_path, "phylip")
+            if concatenated_alignment is None:
+                concatenated_alignment = alignment
+            else:
+                concatenated_alignment = merge_alignments(concatenated_alignment, alignment)
+            # Define the end position for the current partition
+            end_position = start_position + len(alignment[0])
+            # Add the partition information to the dictionary
+            partition_name = "locus{}".format(len(partition_dict) + 1)
+            partition_dict[partition_name] = "{}-{}".format(start_position, end_position-1)
+            # Update the starting position for the next partition
+            start_position = end_position
+    # Define the output file paths
+    output_file = os.path.join(output_dir, "concatenated_alignment.phy")
+    partition_file = os.path.join(output_dir, "partition.txt")
+    # Write the concatenated alignment to the output file
+    with open(output_file, "w") as output_handle:
+        AlignIO.write(concatenated_alignment, output_handle, "phylip")
+    # Write the partition information to the partition file
+    with open(partition_file, "w") as partition_handle:
+        for partition_name, partition_range in partition_dict.items():
+            partition_handle.write("{} {}\n".format(partition_range, partition_name))
 
 
 
