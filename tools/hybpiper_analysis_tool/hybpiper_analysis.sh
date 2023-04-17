@@ -7,41 +7,38 @@
 # one by one.
 #
 # Usage:
-# sh hybpiper_assemble.sh -r <readfiles.zip> -o <NAME_FOR_OUTPUT.zip> -t <test_targets.fasta> -f <dna/aa> -e <bwa/diamond/default> -i <y/n> -m <y/n>
+# sh hybpiper_analysis.sh -i <EXTRACTER_LOCI_SEQUENCES.zip> -o <NAME_FOR_OUTPUT.zip>
 #
 #
 
-runHybpiperExtractLoci() {
+runHybpiperAnalysis() {
     (
-    strScriptDir=$(dirname "$(readlink -f "$0")")
-#    strScriptDir="/home/eremus007/Desktop/Hybpiper/scripts"
-    # base_location=$(echo ${outputfolder} | egrep -o '^.*files')
-    base_location=$(dirname "${outputfolder}")
-#    base_location="/home/eremus007/Desktop/Hybpiper"
+#    strScriptDir=$(dirname "$(readlink -f "$0")")
+    strScriptDir="/home/eremus007/Desktop/hybpiper_analysis/scripts"
+#    base_location=$(dirname "${outputfolder}")
+    base_location="/home/eremus007/Desktop/hybpiper_analysis"
+
     strDirectory=$(mktemp -d "${base_location}"/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
 
     # Create Temporary Directories
     mkdir -p "${workingDir}"
     mkdir -p "${strDirectory}/outputfile/"
-    mkdir -p "${workingDir}/hybpiper_output"
-    mkdir -p "${workingDir}/extracted_loci"
+    mkdir -p "${workingDir}/analysis_output"
 
     # Change the working directory to be a temporary folder
     cd "${workingDir}" || exit
 
     # Unzip hybpiper output zip
-    unzip "${inputfolder}" -d "${workingDir}"/hybpiper_output
+    unzip "${inputfolder}" -d "${workingDir}"/extracted_loci
 
     # Extract the loci sequences using python script
      python3 "${strScriptDir}"/hybpiper_analysis.py \
-        -f "${workingDir}"/hybpiper_output \
-        -o "${workingDir}"/extracted_loci \
-        -t "${file_type}" \
-        -c "${count_bool}"
+        -i "${workingDir}"/extracted_loci  \
+        -o "${workingDir}"/analysis_output
 
     # Zip the correct output files in the temporary directory
-    7z a "${strDirectory}"/tempzip.zip "${workingDir}"/extracted_loci/*
+    7z a "${strDirectory}"/tempzip.zip "${workingDir}"/analysis_output/*
 
     # Copy the zip file to the galaxy data.dat
     cp "${strDirectory}"/tempzip.zip "${outputfolder}"
@@ -49,42 +46,35 @@ runHybpiperExtractLoci() {
     # Delete remaining temporary files
     rm -rf "${strDirectory}"
 
-    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr
+    ) #> /dev/null 2>&1 #This will make sure nothing is written to stderr
 }
 
 # The main function.
 main() {
-  runHybpiperExtractLoci
+  runHybpiperAnalysis
 }
 
 # The getopts function.
-while getopts ":f:o:t:c:vh" opt; do
+while getopts ":i:o:vh" opt; do
     case ${opt} in
-        f)
+        i)
             inputfolder=${OPTARG}
             ;;
         o)
             outputfolder=${OPTARG}
             ;;
-        t)
-            file_type=${OPTARG}
-            ;;
-        c)
-            count_bool=${OPTARG}
-            ;;
         v)
             echo ""
-            echo "extract_loci_sequences.sh [0.2.1]"
+            echo "hybpiper_analysis.sh [0.2.1]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: sh extract_loci_sequences.sh [-h] [-v]       "
-            echo "                 [-f HYBPIPER_OUTPUT_ZIP.zip        "
-            echo "                 [-o OUTPUT_ZIP.zip]                "
-            echo "                 [-t FILE_TYPE]                     "
+            echo "Usage: sh hybpiper_analysis.sh [-h] [-v]       "
+            echo "                 [-i EXTRACTER_LOCI_ZIP.zip    "
+            echo "                 [-o OUTPUT_ZIP.zip]           "
             echo ""
             echo "HybPiper was designed for targeted sequence capture,"
             echo "in which DNA sequencing libraries are enriched for gene regions of interest, especially for phylogenetics. "
