@@ -22,10 +22,37 @@ from Bio.SeqRecord import SeqRecord
 
 
 def concatenate_loci(input_dir, output_dir):
+    """
+    Concatenates all the sequences in each locus folder in `input_dir` into a single multi-FASTA file for each locus,
+    and saves the files in a new directory called `concatenated` in `output_dir`.
+
+    Parameters
+    ----------
+    input_dir : str
+        The path to the directory containing the locus folders, each of which should contain multiple FNA files with
+        sequence data.
+    output_dir : str
+        The path to the directory where the concatenated files will be saved.
+
+    Returns
+    -------
+    concat_dir : str
+        The path to the `concatenated` directory.
+
+    Raises
+    ------
+    OSError
+        If there is an issue creating the `concatenated` directory.
+
+    Notes
+    -----
+    This function assumes that the FNA files in each locus folder contain only one sequence each, and that the file
+    names are in the format `SAMPLENAME_LOCUS.FNA`, where `SAMPLENAME` is a unique identifier for each sequence and
+    `LOCUS` is the name of the locus folder containing the file.
+    """
     # Create a folder to store the concatenated files
     concat_dir = os.path.join(output_dir, 'concatenated')
     os.makedirs(concat_dir, exist_ok=True)
-
     # Iterate over locus folders
     for locus_folder in os.listdir(input_dir):
         locus_folder_path = os.path.join(input_dir, locus_folder)
@@ -52,9 +79,25 @@ def concatenate_loci(input_dir, output_dir):
 
 
 def align_loci(input_dir, output_dir, output_format='.phy'):
-    """Performs sequence alignment for each locus in input_dir and
-    saves the resulting alignments in output_dir in the specified format.
-    The sequences will be aligned to the same length, using gaps if necessary.
+    """Performs sequence alignment for each locus in input_dir and 
+    saves the resulting alignments in output_dir in the specified format. 
+    The sequences will be aligned to the same length, 
+    using gaps if necessary.
+
+    Parameters
+    ----------
+    input_dir : str
+        The path to the directory containing the input files.
+    output_dir : str
+        The path to the directory where the output files will be saved.
+    output_format : str, optional
+        The format in which to save the output files. Default is '.phy'.
+
+    Returns
+    -------
+    alignment_dir : str
+        The path to the directory where the aligned files were saved.
+
     """
     # Get the path to the muscle executable
     muscle_path = shutil.which('muscle')
@@ -109,6 +152,22 @@ def align_loci(input_dir, output_dir, output_format='.phy'):
     return alignment_dir
 
 def merge_alignments(align1, align2):
+    '''Merges two multiple sequence alignments by concatenating sequences
+    for matching sequence identifiers. The merged alignment will have gaps
+    ('?') for any sequences that are present in only one of the alignments.
+    
+    Parameters
+    ----------
+    align1 : Bio.Align.MultipleSeqAlignment
+        The first multiple sequence alignment to merge.
+    align2 : Bio.Align.MultipleSeqAlignment
+        The second multiple sequence alignment to merge.
+    
+    Returns
+    -------
+    merged_alignment : Bio.Align.MultipleSeqAlignment
+        A new multiple sequence alignment containing the merged sequences.
+    '''
     merged_dict = {}
     for record in align1:
         merged_dict[record.id] = str(record.seq)
@@ -125,6 +184,14 @@ def merge_alignments(align1, align2):
 
 
 def create_supermatrix(directory, output_dir):
+    """
+    Reads in multiple phylip-format alignment files in a given directory, concatenates them into a supermatrix alignment,
+    and writes the concatenated alignment and partition information to output files in the specified output directory.
+
+    Parameters:
+    directory (str): the directory containing the input phylip-format alignment files
+    output_dir (str): the directory where the output files will be written
+    """
     # Initialize the concatenated alignment object and the partition dictionary
     concatenated_alignment = None
     partition_dict = {}
@@ -165,6 +232,8 @@ def parse_argvs():
     """
     parser = argparse.ArgumentParser(
         description='Create a phylogenetic tree from enriched sequences of marker genes.')
+    parser.add_argument("-v", "--version", action="version",
+                        version="hybpiper_analysis.py 1.0.1")
     parser.add_argument('-i', '--input-dir', dest='input_dir', required=True,
                         help='Path to the input directory.')
     parser.add_argument('-o', '--output-dir', dest='output_dir', required=True,

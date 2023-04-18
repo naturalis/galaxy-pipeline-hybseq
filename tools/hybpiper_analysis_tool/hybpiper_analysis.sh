@@ -1,13 +1,16 @@
 #!/bin/bash
 
-# The runHybpiperAssemble function calls the python script, which,
-# generates the nessesary hybpiper commands based on the inputs and writes
-# them to a .txt file.
-# This text file is then opened in a while loop and executes every command
-# one by one.
+# The runHybpiperAnalysis function calls the python script, which,
+# concatenates the input .fa files into one .fa file per locus.
+# Then, runs MUSCLE seperately for each concatenated .fa file
+# to generate alignment files in phylip (.phy) format.
+# Those alignments are then concatenated into a supermatrix
+# which itself is also in .phy format alongside a .txt file with the 
+# partition information of each loci in the supermatrix.
+#
 #
 # Usage:
-# sh hybpiper_analysis.sh -i <EXTRACTER_LOCI_SEQUENCES.zip> -o <NAME_FOR_OUTPUT.zip>
+# sh hybpiper_analysis.sh -i <EXTRACTED_LOCI_SEQUENCES.zip> -o <NAME_FOR_OUTPUT.zip>
 #
 #
 
@@ -65,7 +68,7 @@ while getopts ":i:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_analysis.sh [0.2.1]"
+            echo "hybpiper_analysis.sh [1.0.1]"
             echo ""
 
             exit

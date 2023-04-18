@@ -155,7 +155,7 @@ def parse_argvs():
                                                  "sequences from standard "
                                                  " HybPiper output folder.")
     parser.add_argument("-v", "--version", action="version",
-                        version="extract_loci_sequences.py 0.2.1")
+                        version="extract_loci_sequences.py 1.0.0")
     parser.add_argument("-f", "--hybpiper_folder", action="store",
                         dest="input_path",
                         help="The path/location where the script should "
