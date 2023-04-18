@@ -1,0 +1,33 @@
+<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.0.1">
+    <!--<description>Create alignment files for phylogentic analysis by calling several scripts </description>-->
+    <requirements>
+        <requirement type="package" version="3.9">python</requirement>
+        <requirement type="package" version="3.8.31">muscle</requirement>
+        <requirement type="package">biopython</requirement>
+        <requirement type="package">p7zip</requirement>
+    </requirements>
+    <command><![CDATA[
+        bash "$__tool_directory__/hybpiper_analysis.sh"
+        -i "${extracted_loci_zip}"
+        -o "${output_zip}"
+    ]]></command>
+    <inputs>
+        <!-- Catch the input files and optional flags. -->
+        <param name="extracted_loci_zip" type="data" format="zip" label="Extracted Loci ZIP" />
+    </inputs>
+    <outputs>
+        <!-- Catch the output file. -->
+        <data format="zip" type="data" name="output_zip" label="Analysis output ZIP" />
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+        .. class:: infomark
+
+        Information to be written.
+
+        .. class:: warningmark
+
+        Warning to be written
+    </help>
+</tool>
