@@ -1,4 +1,4 @@
-<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.0.1">
+<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.0.2">
     <!--<description>Create alignment files for phylogentic analysis by calling several scripts </description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>

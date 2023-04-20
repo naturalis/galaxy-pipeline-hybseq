@@ -16,10 +16,8 @@
 
 runHybpiperAnalysis() {
     (
-#    strScriptDir=$(dirname "$(readlink -f "$0")")
-    strScriptDir="/home/eremus007/Desktop/hybpiper_analysis/scripts"
-#    base_location=$(dirname "${outputfolder}")
-    base_location="/home/eremus007/Desktop/hybpiper_analysis"
+    strScriptDir=$(dirname "$(readlink -f "$0")")
+    base_location=$(dirname "${outputfolder}")
 
     strDirectory=$(mktemp -d "${base_location}"/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
@@ -68,7 +66,7 @@ while getopts ":i:o:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_analysis.sh [1.0.1]"
+            echo "hybpiper_analysis.sh [1.0.2]"
             echo ""
 
             exit

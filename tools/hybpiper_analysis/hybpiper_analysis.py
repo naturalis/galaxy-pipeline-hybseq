@@ -233,7 +233,7 @@ def parse_argvs():
     parser = argparse.ArgumentParser(
         description='Create a phylogenetic tree from enriched sequences of marker genes.')
     parser.add_argument("-v", "--version", action="version",
-                        version="hybpiper_analysis.py 1.0.1")
+                        version="hybpiper_analysis.py 1.0.2")
     parser.add_argument('-i', '--input-dir', dest='input_dir', required=True,
                         help='Path to the input directory.')
     parser.add_argument('-o', '--output-dir', dest='output_dir', required=True,
