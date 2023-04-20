@@ -45,7 +45,7 @@ This python script goes through the extracted HybPiper output file, and locates 
 
 Usage:
 ```console
-python3 extract_loci_sequences.py \
+python3 extract_loci_sequences.py -v -h \
 -f <HYBPIPER_OUTPUT_LOCATION> \
 -o <OUTPUT_LOCATION> \
 -t <FILE_TYPE>
@@ -53,7 +53,7 @@ python3 extract_loci_sequences.py \
 
 Alternatively:
 ```console
-python3 extract_loci_sequences.py \
+python3 extract_loci_sequences.py --version --help\
 --hybpiper_folder <HYBPIPER_OUTPUT_LOCATION> \
 --output_folder <OUTPUT_LOCATION> \
 --filetype <FILE_TYPE=[FAA/FNA/intron]>

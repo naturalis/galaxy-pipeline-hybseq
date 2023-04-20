@@ -82,14 +82,14 @@ These are all only needed to run HybPiper with the exception of Python 3.9, whic
 Make sure this folder containing:
 
 * *hybpiper_galaxy.xml*
-* *hybpiper_galaxy.xml*
+* *hybpiper_galaxy.sh*
 * *generate_hybpiper_commands.py*
 
-is put inside the \<Path_To_Your_Galaxy>/tools/ directory in its entirety. \ 
+is put inside the \<Path_To_Your_Galaxy>/tools/ directory in its entirety.  
 Then make sure all these scripts have the proper permissions by running the commands in the console:
 
 ```console
-cd \<Path_To_Your_Galaxy>/tools/hybpiper/ 
+cd \<Path_To_Your_Galaxy>/tools/hybpiper_galaxy/ 
 chmod 755 *
 ```
 The cd command will change the current working directory in the console is the one where the scripts are located.
@@ -103,7 +103,7 @@ Then locate your *'tool_conf.xml'* file. It is usually located at:
 Once you have found this file, add the following line at the end of the *'tool_conf.xml'* or in one of the categories already present:
 
 ```xml
-<tool file="<Path_To_Your_Galaxy>/tools/hybpiper/hybpiper_galaxy.xml" />
+<tool file="<Path_To_Your_Galaxy>/tools/hybpiper_galaxy/hybpiper_galaxy.xml" />
 ```
 
 In order to make sure the Galaxy Conda environment is able to find and install HybPiper, some things need to be changed in Galaxy's config files.
@@ -157,4 +157,5 @@ Example:
 ) > /dev/null 2>&1
 ```
 In the current script, this prevents the issue from happening, the downside to this is that error messages are essentially lost. 
-Instead of writing to /dev/null one could write this all to a text file where the error messages could be readt.
+Instead of writing to /dev/null one could write this all to a text file where the error messages could be read.
+* There are some functions that are fully functional, but due to time constraints could not be implemented. These functions can be found in the repository over here: ### Hybpiper Galaxy Tool [Link](https://github.com/naturalis/galaxy-pipeline-hybseq/tree/main/tools/development_code/ "Unimplemented functions") in the unimplemented_functions.py file.
