@@ -15,6 +15,7 @@ runHybpiperAssemble() {
     (
     strScriptDir=$(dirname "$(readlink -f "$0")")
     base_location=$(dirname ${outputzip}) 
+    #base_location="/home/eremus007/Desktop/Hybpiper" #Residual for testing outside of Galaxy, might still come in handy
     strDirectory=$(mktemp -d ${base_location}/XXXXXX_temp)
     workingDir="${strDirectory}/working_dir"
 
@@ -34,14 +35,15 @@ runHybpiperAssemble() {
 
     # Generate Hybpiper commands
      python3 ${strScriptDir}/generate_hybpiper_commands.py \
-        -r ${rawReadsFile} \
+        -r "${rawReadsFile}" \
         -o "${strDirectory}" \
         -t "${workingDir}/targetfile.fasta" \
-        -f ${target_format} \
-        -e ${search_engine} \
-        -i ${intronerate_bool} \
-        -m ${heatmap_bool} \
-        -n "y"
+        -f "${target_format}" \
+        -e "${search_engine}" \
+        -i "${intronerate_bool}" \
+        -m "${heatmap_bool}" \
+        -n "y" \
+        -x "${timeout}"
 
     # Execute generated Hybpiper commands
     while read cmd_to_execute
@@ -62,7 +64,7 @@ runHybpiperAssemble() {
     # Delete remaining temporary files
     rm -rf ${strDirectory}
 
-    ) > /dev/null 2>&1 #This will make sure nothing is written to stderr
+    ) > /home/galaxy/hybpiper_output_log.txt 2>&1 #> /dev/null 2>&1 #This will make sure nothing is written to stderr
 }
 
 # The main function.
@@ -71,7 +73,7 @@ main() {
 }
 
 # The getopts function.
-while getopts ":r:o:t:f:e:i:m:vh" opt; do
+while getopts ":r:o:t:f:e:i:m:x:vh" opt; do
     case ${opt} in
         r)
             readfiles=${OPTARG}
@@ -94,9 +96,12 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
         m)
             heatmap_bool=${OPTARG}
             ;;
+        x)
+            timeout=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "hybpiper_galaxy.sh [1.1.5]"
+            echo "hybpiper_galaxy.sh [1.1.8]"
             echo ""
 
             exit
@@ -111,6 +116,7 @@ while getopts ":r:o:t:f:e:i:m:vh" opt; do
             echo "                 [-e MAPPING METHOD]                "
             echo "                 [-i INTRONERATE_BOOL]              "
             echo "                 [-m HEATMAP_BOOL]                  "
+            echo "                 [-x TIME_OUT_INT]                  "
             echo ""
             echo "HybPiper was designed for targeted sequence capture,"
             echo "in which DNA sequencing libraries are enriched for gene regions of interest, especially for phylogenetics. "

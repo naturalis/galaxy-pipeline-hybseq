@@ -1,4 +1,4 @@
-<tool id="hybpiper" name="HybPiper Galaxy" version="1.1.5">
+<tool id="hybpiper" name="HybPiper Galaxy" version="1.1.8">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -16,6 +16,7 @@
         -e ${search_method}
         -i ${run_intronerate_bool}
         -m ${create_heatmap_bool}
+	-x ${time_out}
     ]]></command>
     <inputs>
         <!-- Catch the input files and optional flags. -->
@@ -32,6 +33,7 @@
         </param>
         <param name="run_intronerate_bool" type="boolean" label="Run Intronerate?" help="Run intronerate to recover fasta files for supercontigs with introns." checked="false" truevalue="y" falsevalue="n" />
         <param name="create_heatmap_bool" type="boolean" label="Generate Heatmap?" help="Generate a heatmap of the gene recovery" checked="false" truevalue="y" falsevalue="n" />
+	<param name="time_out" type="integer" value="0" min="0" max="2000" label="Enter timeout % as a whole number, enter '0' for default" optional="true" />
     </inputs>
     <outputs>
         <!-- Catch the output file. -->

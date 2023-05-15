@@ -128,7 +128,7 @@ def write_commands_to_file(to_write_list, outputlocation=".", outputfilename = '
 
 def construct_assemble_commands(readfile, filenames, samplenames,
                                 target_format, targetfile,
-                                search_engine, intronerate_bool):
+                                search_engine, intronerate_bool, timeout):
     """The function constructs the hybpiper assemble command
     It does this by appending a template string with the proper flags according
     to the state of the arguments. Using this method, it assembles one
@@ -157,6 +157,9 @@ def construct_assemble_commands(readfile, filenames, samplenames,
                     to represent true and false respectively. This 'boolean'
                     checks to see to add the flag to run intronerate
                     to the hybpiper assemble command.
+                timeout : str
+                    Represents an integer x, that allows hybpiper to kill processes that take x percent longer than the average, 
+                    preventing the tool from getting stuck.
 
                 Returns
                 -------
@@ -182,6 +185,9 @@ def construct_assemble_commands(readfile, filenames, samplenames,
 
         if intronerate_bool == "y":
             assemble_cmd = str(assemble_cmd) + " --run_intronerate"
+
+        if timeout != "0" or timeout == None:
+            assemble_cmd = str(assemble_cmd) + " --timeout_assemble %s" % timeout
         # assemble_cmd = str(assemble_cmd) + " --hybpiper_dir %s" % str(output_location)
 
         assemble_cmds.append(assemble_cmd)
@@ -256,7 +262,7 @@ def parseArgvs():
                                                  "containing the name of "
                                                  "every sample in the readfile ")
     parser.add_argument("-v", "--version", action="version",
-                        version="generate_hybpiper_commands.py 1.1.5")
+                        version="generate_hybpiper_commands.py 1.1.8")
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
                         required=True)
@@ -281,6 +287,11 @@ def parseArgvs():
                         dest="heatmap_bool",
                         help="Whether hybpiper should generate a heatmap of the gene recovery",
                         required=False)
+    parser.add_argument("-x", "--timeout", action="store",
+                        dest="timeout",
+                        help="Enter a whole number X, the program will kill processes that "
+                             "take X percent longer than average. Use this if jobs get stuck. Leave empty for default.",
+                        required=False)
     parser.add_argument("-n", "--namelist", action="store",
                         dest="write_namelist",
                         help="Boolean that indicates whether the script should"
@@ -300,6 +311,7 @@ def main():
     heatmap_bool = argvs.heatmap_bool
     output_location = argvs.output_path
     write_namelist = argvs.write_namelist
+    timeout = argvs.timeout
 
     filenameslist = get_file_names(readfile, False)
     samplenameslist = get_sample_names(filenameslist, True)
@@ -308,7 +320,7 @@ def main():
     cmds = construct_assemble_commands(readfile, filenameslist,
                                        samplenameslist,
                                        target_format, targetfile,
-                                       search_method, intronerate_bool)
+                                       search_method, intronerate_bool, timeout)
     #stats_cmd = construct_stats_command()
     #heatmap_cmd = construct_heatmap_command()
     #retrieve_cmds = construct_retrieve_commands()
