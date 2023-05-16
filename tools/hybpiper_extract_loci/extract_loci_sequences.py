@@ -11,6 +11,7 @@ These fasta files can then be used to create several MSA's
 import os
 import shutil
 import argparse
+import re
 
 
 def extract_loci(input_dir, output_dir, file_option="FNA"):
@@ -54,7 +55,7 @@ def extract_loci(input_dir, output_dir, file_option="FNA"):
             continue
         # Loop through each gene_xxx folder within the sample directory
         for gene_dir in os.listdir(os.path.join(input_dir, sample_dir)):
-            if not gene_dir.startswith("gene"):
+            if not os.path.isdir(os.path.join(input_dir, sample_dir, gene_dir)):
                 continue
             # Navigate to the FNA/FAA/intron folder within the gene_xxx folder
             fna_dir = os.path.join(input_dir, sample_dir, gene_dir, sample_dir,
@@ -94,6 +95,7 @@ def sort_files(loci_folder_path):
     """
     # Create a generator expression to loop over
     # all the loci files one at a time
+    letter_pattern = r'[a-zA-Z]'
     loci_files = (f for f in os.listdir(loci_folder_path) if
                   os.path.isfile(os.path.join(loci_folder_path, f)))
     # Loop over all the loci files
@@ -103,7 +105,8 @@ def sort_files(loci_folder_path):
         # Split the file name into its components
         file_parts = file_parts.split('_')
         sample_name = file_parts[0]
-        gene_number = file_parts[1].replace('gene', '')
+        # Remove any and all letters from the gene_number extention
+        gene_number = re.sub(letter_pattern, '', file_parts[1])
         # Create the folder name
         gene_folder_name = 'gene{}_{}'.format(gene_number,
                                               loci_file.split(".")[1])
@@ -155,7 +158,7 @@ def parse_argvs():
                                                  "sequences from standard "
                                                  " HybPiper output folder.")
     parser.add_argument("-v", "--version", action="version",
-                        version="extract_loci_sequences.py 1.0.0")
+                        version="extract_loci_sequences.py 1.0.6")
     parser.add_argument("-f", "--hybpiper_folder", action="store",
                         dest="input_path",
                         help="The path/location where the script should "
