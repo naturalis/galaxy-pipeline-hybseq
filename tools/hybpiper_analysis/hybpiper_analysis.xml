@@ -15,7 +15,7 @@
     <inputs>
         <!-- Catch the input files and optional flags. -->
         <param name="extracted_loci_zip" type="data" format="zip" label="Extracted Loci ZIP" />
-        <param name="alignment_format" type="select" display="radio" label="Sequence Format" help="Sequence format the sequence files are in">
+        <param name="alignment_format" type="select" display="radio" label="Sequence Format" help="Sequence format the input sequence files contain">
             <option value="DNA" selected="true">DNA</option>
             <option value="AA">Amino Acids</option>
         </param>
