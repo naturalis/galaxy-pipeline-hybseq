@@ -151,18 +151,19 @@ def align_loci(input_dir, output_dir, output_format='.phy'):
 
     return alignment_dir
 
+
 def merge_alignments(align1, align2):
     '''Merges two multiple sequence alignments by concatenating sequences
     for matching sequence identifiers. The merged alignment will have gaps
     ('?') for any sequences that are present in only one of the alignments.
-    
+
     Parameters
     ----------
     align1 : Bio.Align.MultipleSeqAlignment
         The first multiple sequence alignment to merge.
     align2 : Bio.Align.MultipleSeqAlignment
         The second multiple sequence alignment to merge.
-    
+
     Returns
     -------
     merged_alignment : Bio.Align.MultipleSeqAlignment
@@ -179,11 +180,12 @@ def merge_alignments(align1, align2):
     for record_id in merged_dict:
         if len(merged_dict[record_id]) < len(align1[0].seq) + len(align2[0].seq):
             merged_dict[record_id] += "?" * (len(align1[0].seq) + len(align2[0].seq) - len(merged_dict[record_id]))
-    merged_records = [SeqRecord(Seq(sequence), id=record_id, description="") for record_id, sequence in merged_dict.items()]
+    merged_records = [SeqRecord(Seq(sequence), id=record_id, description="") for record_id, sequence in
+                      merged_dict.items()]
     return MultipleSeqAlignment(merged_records)
 
 
-def create_supermatrix(directory, output_dir):
+def create_supermatrix(directory, output_dir, seq_format):
     """
     Reads in multiple phylip-format alignment files in a given directory, concatenates them into a supermatrix alignment,
     and writes the concatenated alignment and partition information to output files in the specified output directory.
@@ -191,6 +193,7 @@ def create_supermatrix(directory, output_dir):
     Parameters:
     directory (str): the directory containing the input phylip-format alignment files
     output_dir (str): the directory where the output files will be written
+    seq_format (str): what formatthe sequence files are in
     """
     # Initialize the concatenated alignment object and the partition dictionary
     concatenated_alignment = None
@@ -210,7 +213,7 @@ def create_supermatrix(directory, output_dir):
             end_position = start_position + len(alignment[0])
             # Add the partition information to the dictionary
             partition_name = "locus{}".format(len(partition_dict) + 1)
-            partition_dict[partition_name] = "{}-{}".format(start_position, end_position-1)
+            partition_dict[partition_name] = "{}-{}".format(start_position, end_position - 1)
             # Update the starting position for the next partition
             start_position = end_position
     # Define the output file paths
@@ -222,8 +225,10 @@ def create_supermatrix(directory, output_dir):
     # Write the partition information to the partition file
     with open(partition_file, "w") as partition_handle:
         for partition_name, partition_range in partition_dict.items():
-            partition_handle.write("{} {}\n".format(partition_range, partition_name))
-
+            if seq_format == "DNA":
+                partition_handle.write("DNA, {} = {}\n".format(partition_name, partition_range))
+            else:
+                partition_handle.write("AA, {} = {}\n".format(partition_name, partition_range))
 
 
 def parse_argvs():
@@ -233,11 +238,13 @@ def parse_argvs():
     parser = argparse.ArgumentParser(
         description='Create a phylogenetic tree from enriched sequences of marker genes.')
     parser.add_argument("-v", "--version", action="version",
-                        version="hybpiper_analysis.py 1.0.2")
+                        version="hybpiper_analysis.py 1.1.0")
     parser.add_argument('-i', '--input-dir', dest='input_dir', required=True,
                         help='Path to the input directory.')
     parser.add_argument('-o', '--output-dir', dest='output_dir', required=True,
                         help='Path to the output directory.')
+    parser.add_argument('-f', '--format', dest='seq_format', required=True,
+                        help='What type of sequences? (AA/DNA)')
     argvs = parser.parse_args()
     return argvs
 
@@ -247,6 +254,7 @@ def main():
     argvs = parse_argvs()
     input_dir = argvs.input_dir
     output_dir = argvs.output_dir
+    seq_format = argvs.seq_format
 
     print("Concatenating input files...", end="\r")
     concatenated_input_dir = concatenate_loci(input_dir, output_dir)
@@ -255,7 +263,7 @@ def main():
     alignment_dir = align_loci(concatenated_input_dir, output_dir)
     print(end=LINE_CLEAR)
     print("Generating supermatrix...", end="\r")
-    create_supermatrix(alignment_dir, output_dir)
+    create_supermatrix(alignment_dir, output_dir, seq_format)
     print(end=LINE_CLEAR)
     print("Done!", end="\r")
 

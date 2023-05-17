@@ -36,7 +36,8 @@ runHybpiperAnalysis() {
     # Extract the loci sequences using python script
      python3 "${strScriptDir}"/hybpiper_analysis.py \
         -i "${workingDir}"/extracted_loci  \
-        -o "${workingDir}"/analysis_output
+        -o "${workingDir}"/analysis_output \
+        -f "${format}"
 
     # Zip the correct output files in the temporary directory
     7z a "${strDirectory}"/tempzip.zip "${workingDir}"/analysis_output/*
@@ -56,7 +57,7 @@ main() {
 }
 
 # The getopts function.
-while getopts ":i:o:vh" opt; do
+while getopts ":i:o:f:vh" opt; do
     case ${opt} in
         i)
             inputfolder=${OPTARG}
@@ -64,9 +65,12 @@ while getopts ":i:o:vh" opt; do
         o)
             outputfolder=${OPTARG}
             ;;
+        f)
+            format=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "hybpiper_analysis.sh [1.0.2]"
+            echo "hybpiper_analysis.sh [1.1.0]"
             echo ""
 
             exit

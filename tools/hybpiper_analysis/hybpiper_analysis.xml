@@ -1,4 +1,4 @@
-<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.0.2">
+<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.1.0">
     <!--<description>Create alignment files for phylogentic analysis by calling several scripts </description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -10,10 +10,15 @@
         bash "$__tool_directory__/hybpiper_analysis.sh"
         -i "${extracted_loci_zip}"
         -o "${output_zip}"
+        -f "${alignment_format}"
     ]]></command>
     <inputs>
         <!-- Catch the input files and optional flags. -->
         <param name="extracted_loci_zip" type="data" format="zip" label="Extracted Loci ZIP" />
+        <param name="alignment_format" type="select" display="radio" label="Sequence Format" help="Sequence format the sequence files are in">
+            <option value="DNA" selected="true">DNA</option>
+            <option value="AA">Amino Acids</option>
+        </param>
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
