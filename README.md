@@ -78,7 +78,7 @@ If you follow this tutorial with your own target file and read files, be sure to
 For a guide on how to prepare your target file as well as your read files. Be sure to check back to the original HybPiper GitHub page over [here](https://github.com/mossmatters/HybPiper/wiki/Troubleshooting,-common-issues,-and-recommendations "HybPiper Troubleshooting, common issues, and recommendations").
 
 ### Step 1
-First off we must load in data to do so, click on the small icon in the top left.
+First off we must load in data. To do so, click on the small icon in the top left.
 
 ![Step 1](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%201.png)
 
@@ -100,25 +100,39 @@ Now it is time to run the first tool, namely the HybPiper Galaxy tool, which wil
 
 Here a small list of the different settings one can change in this tool and what they mean:
 
-**Read Files:** The ZIP file containing the FASTQ read files. Will be used as input for the tool.
+**Read Files:** 
 
-**Target file:** The Fasta file containing the targets. Will be used as input for the tool.
+The ZIP file containing the FASTQ read files. Will be used as input for the tool.
 
-**Squence Format:** The type of sequences the input files are in, has the option for Amino Acids and DNA sequences.
+**Target file:** 
 
-**Mapping Method** The type of mapping algorithm to use for the mapping of the sequences to the targets. The choice is between BWA and DIAMOND, with a default option, to run HybPiper without any mapping specifications.
+The Fasta file containing the targets. Will be used as input for the tool.
 
-**Run Intronerate:** Here the user can specify whether they want to run intronerate to recover the supercontigs with introns. 
+**Squence Format:** 
 
-**Generate Heatmap:** This option is non-functional and does not do anything, so can be ignored. It is a remnant of a planned feature that would have been implemented, but wasn't due to time constraints.
+The type of sequences the input files are in, has the option for Amino Acids and DNA sequences.
 
-**Timeout percentage:** With this option the user can specify a number x. During the HybPiper run, jobs taking too long (X percent longer than average) will be killed. This option is for large datasets and can be used if jobs get stuck a lot. Entering a value of '0' (zero) will run HybPiper without a timeout.
+**Mapping Method:** 
+
+The type of mapping algorithm to use for the mapping of the sequences to the targets. The choice is between BWA and DIAMOND, with a default option, to run HybPiper without any mapping specifications.
+
+**Run Intronerate:** 
+
+Here the user can specify whether they want to run intronerate to recover the supercontigs with introns. 
+
+**Generate Heatmap:** 
+
+This option is non-functional and does not do anything, so can be ignored. It is a remnant of a planned feature that would have been implemented, but wasn't due to time constraints.
+
+**Timeout percentage:** 
+
+With this option the user can specify a number X. During the HybPiper run, jobs taking too long (X percent longer than average) will be killed. This option is for large datasets and can be used if jobs get stuck a lot. Entering a value of '0' (zero) will run HybPiper without a timeout.
  
 ![Step 5](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%205.png)
 
 ### Step 6
 
-For our example, our data are DNA sequences, which we will map using BWA, while also running intronerate because it is nice to have. Because this tutorial dataset is small, we won't specify a number for the timeout option.
+For our example, our data are DNA sequences, which we will map using BWA, while also running intronerate just for the demonstration. Because this tutorial dataset is small, we won't specify a number for the timeout option.
 
 Once all the settings are the way they are supposed to be for your data/project, click the 'Execute' button. This will then run the HybPiper tool, which will take a little bit to run. 
 The larger your dataset, the longer it will take. 
@@ -172,9 +186,7 @@ Then press execute and let the tool run.
 The results is a ZIP file with alignment files, and one large supermatrix file in phylip format as well as a partition.txt file with the partition information for that supermatrix.
 ![Step 13](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2013.png)
 
-These results can then be used to create a phylogenetic tree using tools like raxml or phylogeny.org.
-
-And visualize using a tool like [Figtree](https://github.com/rambaut/figtree/ "Figree GitHub Repository").
+These results can then be used to create a phylogenetic tree using tools like raxml or phylogeny.org which can then be visualized using a tool like [Figtree](https://github.com/rambaut/figtree/ "Figree GitHub Repository").
 
 That concludes this tutorial. We hope it serves you well! 
 
