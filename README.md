@@ -68,4 +68,97 @@ this ideal end state. The repository is inspired by the following prior art:
 # Running the HybPiper Tools
 ## Step-by-step Guide
 
-Coming soon!
+In this tutorial we will perform a hyb-seq analysis in Galaxy with the tools on this GitHub repository. Before you start, make sure you have installed each tool in your Galaxy instance as described in their seperate README.md files.
+You can download the dataset and target file in this tutorial from HERE, this test dataset is derived from the original HybPiper tutorial [here](https://github.com/mossmatters/HybPiper/wiki/Tutorial).
+
+### Step 1
+First off we must load in data to do so, click on the small icon in the top left.
+
+![Step 1](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%201.png)
+
+### Step 2, 3 and 4
+Then upload your ZIP file with the paired FASTQ files and the FASTA file with the targets By pressing the 'Choose local file' button, or fetching data from a dedicated repository. In this case, we do the former.
+Then specify the format of each file manually (auto-detect often has issues with ZIP files) and then press start.
+
+![Step 2](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%202.png)
+
+Once the files have uploaded close the upload window, the files should have appeared on the history on the right and be displayed in green.
+
+![Step 3](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%203.png)
+
+![Step 4](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%204.png)
+
+### Step 5
+
+Now it is time to run the first tool, namely the HybPiper Galaxy tool, which will map the sequences in the FASTQ files to the target sequences in the FASTA file in order to output enriched marker sequences sorted by locus.
+
+Here a small list of the different settings one can change in this tool and what they mean:
+
+**Read Files:** The ZIP file containing the FASTQ read files. Will be used as input for the tool.
+
+**Target file:** The Fasta file containing the targets. Will be used as input for the tool.
+
+**Squence Format:** The type of sequences the input files are in, has the option for Amino Acids and DNA sequences.
+
+**Mapping Method** The type of mapping algorithm to use for the mapping of the sequences to the targets. The choice is between BWA and DIAMOND, with a default option, to run HybPiper without any mapping specifications.
+
+**Run Intronerate:** Here the user can specify whether they want to run intronerate to recover the supercontigs with introns. 
+
+**Generate Heatmap:** This option is non-functional and does not do anything, so can be ignored. It is a remnant of a planned feature that would have been implemented, but wasn't due to time constraints.
+
+**Timeout percentage:** With this option the user can specify a number x. During the HybPiper run, jobs taking too long (X percent longer than average) will be killed. This option is for large datasets and can be used if jobs get stuck a lot. Entering a value of '0' (zero) will run HybPiper without a timeout.
+ 
+![Step 5](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%205.png)
+
+### Step 6
+
+For our example, our data are DNA sequences, which we will map using BWA, while also running intronerate because it is nice to have. Because this tutorial dataset is small, we won't specify a number for the timeout option.
+
+Once all the settings are the way they are supposed to be for your data/project, click the 'Execute' button. This will then run the HybPiper tool, which will take a little bit to run. 
+The larger your dataset, the longer it will take. 
+
+![Step 6](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%206.png)
+
+### Step 7 and 8
+
+While the tool/job is running, it will have a loading bar and remain an orange color. Once the tool has finished it will change its color to green to indicate this.
+
+![Step 7](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%207.png)
+
+![Step 8](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%208.png)
+
+You can download the HybPiper output ZIP archive by clicking on the Hybpiper Output variable and pressing the small download button, however, we are going to use two more tools to easily process the enriched marker sequences HybPiper generated. 
+
+### Step 9
+
+The files that the HybPiper tool generated are each in their own subdirectories. With a few hundred sequences, copying and pasting them manually to a new folder to use in analyses would take a lot of time. In order to automate this process, we have the HybPiper Extract Loci tool.
+
+Just like the previous tool, we can specify an input ZIP file, for which we will enter the HybPiper output as the input for this tool. 
+
+We can specify which type of files generated by HybPiper we want to sort by locus by using the **File type** option. We can choose between 'FNA', for DNA sequence files; 'FAA' for amino acid sequence files, and 'Intron sequences' for the files generated by intronerate (if it was run in the HybPiper tool steps). 
+
+In our case, we want FNA files so we select that and press execute again.
+
+![Step 9](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%209.png)
+
+### Step 10
+
+Once the extract loci tool has finished, we have 
+
+![Step 10](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2010.png)
+
+### Step 11
+![Step 11](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2011.png)
+
+### Step 12
+![Step 12](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2012.png)
+
+### Step 13
+![Step 13](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2013.png)
+
+### Step 14
+![Step 14](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2014.png)
+
+### Step 15
+![Step 15](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2015.png)
+
