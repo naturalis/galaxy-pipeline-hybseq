@@ -69,7 +69,13 @@ this ideal end state. The repository is inspired by the following prior art:
 ## Step-by-step Guide
 
 In this tutorial we will perform a hyb-seq analysis in Galaxy with the tools on this GitHub repository. Before you start, make sure you have installed each tool in your Galaxy instance as described in their seperate README.md files.
-You can download the dataset and target file in this tutorial from HERE, this test dataset is derived from the original HybPiper tutorial [here](https://github.com/mossmatters/HybPiper/wiki/Tutorial).
+
+### Preparing the data
+You can download the dataset and target file in this tutorial from  [here](https://github.com/mossmatters/HybPiper/wiki/Tutorial). You must get the test_targets.fasta file and the test_reads.fastq.tar.gz and unpack it manually. Then get all the fastq sequences and zip them again, so it is just a regular zip file with FASTQ files directly into the archive.
+
+If you follow this tutorial with your own target file and read files, be sure to follow this same format for your readfile.zip. There must be no subdirectories or folders otherwise present inside the zip file, or the Galaxy tools might crash.
+
+For a guide on how to prepare your target file as well as your read files. Be sure to check back to the original HybPiper GitHub page over [here](https://github.com/mossmatters/HybPiper/wiki/Troubleshooting,-common-issues,-and-recommendations "HybPiper Troubleshooting, common issues, and recommendations").
 
 ### Step 1
 First off we must load in data to do so, click on the small icon in the top left.
@@ -143,22 +149,33 @@ In our case, we want FNA files so we select that and press execute again.
 
 ### Step 10
 
-Once the extract loci tool has finished, we have 
+Once the extract loci tool has finished, we have one file for each gene, containing the files of our choice for each locus. In this case the .FNA files. 
 
 ![Step 10](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2010.png)
 
+![Extract loci tool output](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Extract%20Loci%20Output.png)
+
 ### Step 11
+
+Next up we have one more tool, which is the HybPiper Phylo Analysis tool. This tool will concatenate the files we got from the extract loci tool and run MUSCLE to create alignment files in phylip format. Then finally, merge these alignments together into a supermatrix.
+
+To use the tool, specify the output of the Extract loci tool as the input of this one and specify which sequence type we have, which is the same as in the previous tools.
+
+Then press execute and let the tool run.
+
 ![Step 11](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2011.png)
 
 ### Step 12
 ![Step 12](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2012.png)
 
 ### Step 13
+The results is a ZIP file with alignment files, and one large supermatrix file in phylip format as well as a partition.txt file with the partition information for that supermatrix.
 ![Step 13](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2013.png)
 
-### Step 14
-![Step 14](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2014.png)
+These results can then be used to create a phylogenetic tree using tools like raxml or phylogeny.org.
 
-### Step 15
-![Step 15](https://github.com/naturalis/galaxy-pipeline-hybseq/blob/main/images/Tutorial%20Images/Step%2015.png)
+And visualize using a tool like [Figtree](https://github.com/rambaut/figtree/ "Figree GitHub Repository").
+
+That concludes this tutorial. We hope it serves you well! 
+
 
