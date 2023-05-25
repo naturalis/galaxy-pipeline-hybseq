@@ -101,7 +101,7 @@ while getopts ":r:o:t:f:e:i:m:x:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_galaxy.sh [1.1.8]"
+            echo "hybpiper_galaxy.sh [1.1.9]"
             echo ""
 
             exit

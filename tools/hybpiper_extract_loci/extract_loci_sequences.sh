@@ -74,7 +74,7 @@ while getopts ":f:o:t:c:vh" opt; do
             ;;
         v)
             echo ""
-            echo "extract_loci_sequences.sh [1.0.6]"
+            echo "extract_loci_sequences.sh [1.0.7]"
             echo ""
 
             exit

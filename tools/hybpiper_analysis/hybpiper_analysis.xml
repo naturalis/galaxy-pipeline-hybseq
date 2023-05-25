@@ -1,4 +1,4 @@
-<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.1.0">
+<tool id="hyb_analyze" name="HybPiper Phylo Analysis" version="1.1.1">
     <!--<description>Create alignment files for phylogentic analysis by calling several scripts </description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -29,10 +29,15 @@
     <help>
         .. class:: infomark
 
-        Information to be written.
+        Concatenates the sequences in the input ZIP file (preferably the output from the extract loci tool)
+        and runs MUSCLE to create an alignment file for each locus/gene represented by a folder in the input file.
+        Finally, the alignment files are concatenated into a single, partitioned super matrix in phylip format.
 
-        .. class:: warningmark
 
-        Warning to be written
+        .. class:: infomark
+
+        For a guide on how to use this tool and it's supplementary tools 
+        (extract_loci and HybPiper wrapper) please visit the README file on the GitHub repository:
+        https://github.com/naturalis/galaxy-pipeline-hybseq
     </help>
 </tool>

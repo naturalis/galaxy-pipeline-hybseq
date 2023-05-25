@@ -70,7 +70,7 @@ while getopts ":i:o:f:vh" opt; do
             ;;
         v)
             echo ""
-            echo "hybpiper_analysis.sh [1.1.0]"
+            echo "hybpiper_analysis.sh [1.1.1]"
             echo ""
 
             exit

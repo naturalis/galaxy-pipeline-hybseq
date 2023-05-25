@@ -1,4 +1,4 @@
-<tool id="hybpiper" name="HybPiper Galaxy" version="1.1.8">
+<tool id="hybpiper" name="HybPiper Galaxy" version="1.1.9">
 <!--<description>quality trim reads</description>-->
 <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -45,6 +45,12 @@
         .. class:: infomark
 
         Run the Hybpiper pipeline
+
+        .. class:: infomark
+
+        For a guide on how to use this tool and it's supplementary tools 
+        (extract_loci and phylo analysis) please visit the README file on the GitHub repository:
+        https://github.com/naturalis/galaxy-pipeline-hybseq
 
         .. class:: infomark
 

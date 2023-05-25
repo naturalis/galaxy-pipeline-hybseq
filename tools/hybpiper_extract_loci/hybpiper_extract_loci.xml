@@ -1,4 +1,4 @@
-<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="1.0.6">
+<tool id="hyb_extract_loci" name="HybPiper Extract Loci" version="1.0.7">
     <!--<description>quality trim reads</description>-->
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
@@ -32,6 +32,12 @@
         .. class:: infomark
 
         Extract Loci Sequences from HybPiper output file
+
+        .. class:: infomark
+
+        For a guide on how to use this tool and it's supplementary tools 
+        (HybPiper wrapper and phylo analysis) please visit the README file on the GitHub repository:
+        https://github.com/naturalis/galaxy-pipeline-hybseq
 
         .. class:: warningmark
 

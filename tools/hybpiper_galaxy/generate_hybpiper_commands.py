@@ -262,7 +262,7 @@ def parseArgvs():
                                                  "containing the name of "
                                                  "every sample in the readfile ")
     parser.add_argument("-v", "--version", action="version",
-                        version="generate_hybpiper_commands.py 1.1.8")
+                        version="generate_hybpiper_commands.py 1.1.9")
     parser.add_argument("-r", "--readfile", action="store", dest="readfile",
                         help="The location of the input readfile(s)",
                         required=True)
