@@ -9,6 +9,12 @@ It has the benefit of a graphical user interface (GUI) which makes it so anyone 
 
 With these Galaxy tools, the aim is to make HybPiper and Hyb-Seq data analysis accessible to more people.
 
+The tools are currently available here to download and have also been installed on Naturalis'  [Galaxy development portal](https://galaxy-development-frontend.hosts.naturalis.io/).
+For Naturalis employies, be sure to ask the IT department at Naturalis for access if you have permission.
+
+Once final tests have been concluded and ability to scale jobs have been implemented, the tools will be integrated into the [ main naturalis Galaxy portal](https://galaxy.naturalis.nl/root/login?redirect=%2F). But this is currently not the case.
+
+
 ## Future plans
 
 * The inclusion of the generate_heatmap function already available in HybPiper to the HybPiper Galaxy tool.
