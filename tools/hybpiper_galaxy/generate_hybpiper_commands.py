@@ -183,8 +183,9 @@ def construct_assemble_commands(readfile, filenames, samplenames,
         elif search_engine == "bwa":
             assemble_cmd = str(assemble_cmd) + " --bwa"
 
-        if intronerate_bool == "y":
-            assemble_cmd = str(assemble_cmd) + " --run_intronerate"
+        # intronerate runs by default since hybpiper 2.1.5. --no-intronerate option has been added in version 2.1.6
+        if intronerate_bool == "n":
+            assemble_cmd = str(assemble_cmd) + " --no_intronerate"
 
         if timeout != "0" or timeout == None:
             assemble_cmd = str(assemble_cmd) + " --timeout_assemble %s" % timeout

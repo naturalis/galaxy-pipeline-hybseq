@@ -1,8 +1,7 @@
 <tool id="hybpiper" name="HybPiper Galaxy" version="1.1.9">
 <!--<description>quality trim reads</description>-->
 <requirements>
-        <requirement type="package" version="3.9">python</requirement>
-        <requirement type="package">hybpiper</requirement>
+        <requirement type="package" version="2.1.6">hybpiper</requirement>
         <requirement type="package">blast</requirement>
         <requirement type="package">mafft</requirement>
         <requirement type="package">p7zip</requirement>
@@ -31,7 +30,7 @@
             <option value="bwa">BWA</option>
             <option value="diamond">DIAMOND</option>
         </param>
-        <param name="run_intronerate_bool" type="boolean" label="Run Intronerate?" help="Run intronerate to recover fasta files for supercontigs with introns." checked="false" truevalue="y" falsevalue="n" />
+        <param name="run_intronerate_bool" type="boolean" label="Run Intronerate?" help="Run intronerate to recover fasta files for supercontigs with introns. Intronerate is enabled by default since Hybpiper v2.1.5" checked="true" truevalue="y" falsevalue="n" />
         <param name="create_heatmap_bool" type="boolean" label="Generate Heatmap?" help="Generate a heatmap of the gene recovery" checked="false" truevalue="y" falsevalue="n" />
 	<param name="time_out" type="integer" value="0" min="0" max="2000" label="Enter timeout % as a whole number, enter '0' for default" optional="true" />
     </inputs>
