@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # The runHybpiperAnalysis function calls the python script, which,
 # concatenates the input .fa files into one .fa file per locus.
 # Then, runs MUSCLE seperately for each concatenated .fa file
@@ -28,7 +28,7 @@ runHybpiperAnalysis() {
     mkdir -p "${workingDir}/analysis_output"
 
     # Change the working directory to be a temporary folder
-    cd "${workingDir}" || exit
+    # cd "${workingDir}" || exit
 
     # Unzip hybpiper output zip
     unzip "${inputfolder}" -d "${workingDir}"/extracted_loci

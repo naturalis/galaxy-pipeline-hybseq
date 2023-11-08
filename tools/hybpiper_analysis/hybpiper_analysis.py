@@ -15,13 +15,22 @@ import subprocess
 import sys
 from Bio.Align.Applications import MuscleCommandline
 from Bio import SeqIO, AlignIO
+from Bio.AlignIO.PhylipIO import PhylipWriter, RelaxedPhylipIterator
 from Bio.Application import ApplicationError
 from Bio.Align import MultipleSeqAlignment
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+import subprocess
+import shlex
+import re
+
+global id_length
 
 
 def concatenate_loci(input_dir, output_dir):
+    print("=== concatenate_loci ===")
+    print("input_dir:", input_dir)
+    print("output_dir:", output_dir)
     """
     Concatenates all the sequences in each locus folder in `input_dir` into a single multi-FASTA file for each locus,
     and saves the files in a new directory called `concatenated` in `output_dir`.
@@ -78,7 +87,11 @@ def concatenate_loci(input_dir, output_dir):
     return concat_dir
 
 
-def align_loci(input_dir, output_dir, output_format='.phy'):
+def align_loci(input_dir, output_dir):
+    global id_length
+    print("=== align_loci ===")
+    print("input_dir:", input_dir)
+    print("output_dir:", output_dir)
     """Performs sequence alignment for each locus in input_dir and 
     saves the resulting alignments in output_dir in the specified format. 
     The sequences will be aligned to the same length, 
@@ -108,34 +121,42 @@ def align_loci(input_dir, output_dir, output_format='.phy'):
     alignment_dir = os.path.join(output_dir, "alignments")
     os.makedirs(alignment_dir, exist_ok=True)
 
-    concat_dir = os.path.join(output_dir, "concatenated")
-    concat_path = os.listdir(concat_dir)
+    for concat_file in os.listdir(input_dir):
+        input_file = os.path.join(input_dir, concat_file)
+        muscle_output_file = os.path.join(
+            alignment_dir,
+            re.sub("[.](faa|fna|fa)$", ".afa", concat_file)
+        )
+        phylyp_output_file = os.path.join(
+            alignment_dir,
+            re.sub("[.](faa|fna|fa)$", ".phy", concat_file)
+        )
 
-    for concat_file in concat_path:
-        input_path = os.path.join(concat_dir, concat_file)
-        if "fna" in concat_file.lower().split("."):
-            output_file = concat_file.replace('.fna', output_format)
-        elif "faa" in concat_file.lower().split("."):
-            output_file = concat_file.replace('.faa', output_format)
-        elif "fa" in concat_file.lower().split("."):
-            output_file = concat_file.replace('.fa', output_format)
-        else:
-            continue
-
-        output_path = os.path.join(alignment_dir, output_file)
         # Align sequences using Muscle
-        muscle_cline = MuscleCommandline(str(muscle_path), input=input_path, out=output_path)
-        try:
-            stdout, stderr = muscle_cline()
-        except ApplicationError as e:
-            print("Muscle failed with error:", e.stderr)
-            continue
+        muscle_cline = str(MuscleCommandline(str(muscle_path), input=input_file, out=muscle_output_file))
+        # fix muscle command to work with newer version
+        muscle_cline = muscle_cline.replace(" -in ", " -align ").replace(" -out ", " -output ")
+        print("MUSCLE command:", muscle_cline)
+        cmd_tokens = shlex.split(str(muscle_cline))
+        proc = subprocess.Popen(cmd_tokens, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        outs, errs = proc.communicate()
+        # print("MUSCLE stdout:")
+        # print(outs)
+        # print("MUSCLE stderr:")
+        # print(errs)
+        if "invalid" in str(errs):  # FIXME might break if a samplename contains this word
+            print("Muscle failed with error")
+            exit()
+        assert os.path.isfile(cmd_tokens[-1]) and os.stat(cmd_tokens[-1]).st_size != 0, \
+            f"MUSCLE output '{cmd_tokens[-1]}' is missing or an empty file"
 
         # Open the alignment file and align sequences to the same length
-        with open(output_path, "r") as alignment_file:
+        id_length = 0
+        with open(muscle_output_file, "r") as alignment_file:
             alignment = AlignIO.read(alignment_file, "fasta")
             alignment_len = alignment.get_alignment_length()
             for record in alignment:
+                id_length = max(id_length, len(record.id))
                 if len(record.seq) < alignment_len:
                     # If sequence is shorter than the alignment length, add gaps to the end
                     gap_len = alignment_len - len(record.seq)
@@ -146,14 +167,16 @@ def align_loci(input_dir, output_dir, output_format='.phy'):
                     record.seq = record.seq[:alignment_len]
 
         # Write the aligned sequences to the same output file in the specified format
-        with open(output_path, "w") as output_file:
-            AlignIO.write(alignment, output_file, "phylip")
+        with open(phylyp_output_file, "w") as output_file:
+            pw = PhylipWriter(output_file)
+            pw.write_alignment(alignment, id_width=id_length)
 
     return alignment_dir
 
 
 def merge_alignments(align1, align2):
-    '''Merges two multiple sequence alignments by concatenating sequences
+    """
+    Merges two multiple sequence alignments by concatenating sequences
     for matching sequence identifiers. The merged alignment will have gaps
     ('?') for any sequences that are present in only one of the alignments.
 
@@ -168,7 +191,7 @@ def merge_alignments(align1, align2):
     -------
     merged_alignment : Bio.Align.MultipleSeqAlignment
         A new multiple sequence alignment containing the merged sequences.
-    '''
+    """
     merged_dict = {}
     for record in align1:
         merged_dict[record.id] = str(record.seq)
@@ -187,13 +210,13 @@ def merge_alignments(align1, align2):
 
 def create_supermatrix(directory, output_dir, seq_format):
     """
-    Reads in multiple phylip-format alignment files in a given directory, concatenates them into a supermatrix alignment,
+    Reads in multiple phylip-format alignment files in a given directory, concatenates them into a supermatrix alignment
     and writes the concatenated alignment and partition information to output files in the specified output directory.
 
     Parameters:
     directory (str): the directory containing the input phylip-format alignment files
     output_dir (str): the directory where the output files will be written
-    seq_format (str): what formatthe sequence files are in
+    seq_format (str): what format the sequence files are in
     """
     # Initialize the concatenated alignment object and the partition dictionary
     concatenated_alignment = None
@@ -204,9 +227,11 @@ def create_supermatrix(directory, output_dir, seq_format):
     for filename in os.listdir(directory):
         if filename.endswith(".phy"):
             file_path = os.path.join(directory, filename)
-            alignment = AlignIO.read(file_path, "phylip")
+            with open(file_path, "r") as fh:
+                alignment = list(RelaxedPhylipIterator(fh))[0]  # [0] is to get the full alignment, NOT THE FIRST SEQ
+                # it is equivalent to: alignment = AlignIO.read(file_path, "phylip"), but relaxed phylip format
             if concatenated_alignment is None:
-                concatenated_alignment = alignment
+                concatenated_alignment = MultipleSeqAlignment(alignment)
             else:
                 concatenated_alignment = merge_alignments(concatenated_alignment, alignment)
             # Define the end position for the current partition
@@ -219,9 +244,12 @@ def create_supermatrix(directory, output_dir, seq_format):
     # Define the output file paths
     output_file = os.path.join(output_dir, "concatenated_alignment.phy")
     partition_file = os.path.join(output_dir, "partition.txt")
+
     # Write the concatenated alignment to the output file
     with open(output_file, "w") as output_handle:
-        AlignIO.write(concatenated_alignment, output_handle, "phylip")
+        pw = PhylipWriter(output_handle)
+        pw.write_alignment(concatenated_alignment, id_width=id_length)
+
     # Write the partition information to the partition file
     with open(partition_file, "w") as partition_handle:
         for partition_name, partition_range in partition_dict.items():
@@ -250,22 +278,18 @@ def parse_argvs():
 
 
 def main():
-    LINE_CLEAR = '\x1b[2K'
     argvs = parse_argvs()
     input_dir = argvs.input_dir
     output_dir = argvs.output_dir
     seq_format = argvs.seq_format
 
-    print("Concatenating input files...", end="\r")
+    print("Concatenating input files...")
     concatenated_input_dir = concatenate_loci(input_dir, output_dir)
-    print(end=LINE_CLEAR)
-    print("Running MUSCLE...", end="\r")
+    print("Running MUSCLE...")
     alignment_dir = align_loci(concatenated_input_dir, output_dir)
-    print(end=LINE_CLEAR)
-    print("Generating supermatrix...", end="\r")
+    print("Generating supermatrix...")
     create_supermatrix(alignment_dir, output_dir, seq_format)
-    print(end=LINE_CLEAR)
-    print("Done!", end="\r")
+    print("Done!")
 
 
 if __name__ == '__main__':
