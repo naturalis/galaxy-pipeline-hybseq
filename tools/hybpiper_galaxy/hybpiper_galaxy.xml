@@ -37,7 +37,7 @@
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
-        <data format="zip" type="data" name="output" label="hybiper_assemble_outpit.zip" />
+        <data format="zip" type="data" name="output" label="hybiper_assemble_output.zip" />
     </outputs>
     <tests>
     </tests>
