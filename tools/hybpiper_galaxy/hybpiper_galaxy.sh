@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # The runHybpiperAssemble function calls the python script, which,
 # generates the necessary hybpiper commands based on the inputs and writes
 # them to a .txt file.
@@ -20,51 +20,56 @@ runHybpiperAssemble() {
     workingDir="${strDirectory}/working_dir"
 
     mkdir -p ${workingDir}
-    mkdir -p "${strDirectory}/outputfile/"
+    #mkdir -p "${strDirectory}/outputfile/"
     mkdir -p "${workingDir}/raw_reads"
 
-    cd ${workingDir}
+    #cd ${workingDir}
 
     #outputDirectory=$(dirname "${readfiles}")
 
 
     #Unzip readfile zip and copy to proper location
-    unzip ${readfiles} -d ${workingDir}/raw_reads
     cp ${targetfile} ${workingDir}/targetfile.fasta
+    # unzip ${readfiles} -d ${workingDir}/raw_reads
     rawReadsFile="${workingDir}/raw_reads"
 
     # Generate Hybpiper commands
-     python3 ${strScriptDir}/generate_hybpiper_commands.py \
-        -r "${rawReadsFile}" \
-        -o "${strDirectory}" \
-        -t "${workingDir}/targetfile.fasta" \
-        -f "${target_format}" \
-        -e "${search_engine}" \
-        -i "${intronerate_bool}" \
-        -m "${heatmap_bool}" \
-        -n "y" \
-        -x "${timeout}"
+    no_intronerate_arg=$([ "$run_intronerate" = "n" ] && echo "--no_intronerate" || echo "")
+    heatmap_arg=$([ "$heatmap" = "y" ] && echo "--heatmap" || echo "")
+    echo $no_intronerate_arg
+    echo $heatmap_arg
+    python3 ${strScriptDir}/generate_hybpiper_commands.py \
+        --read_zip "${readfiles}" \
+        --read_dir "${rawReadsFile}" \
+        --output_dir "${workingDir}" \
+        --targets "${workingDir}/targetfile.fasta" \
+        --target_format "${target_format}" \
+        --engine "${search_engine}" \
+        ${no_intronerate_arg} \
+        ${heatmap_arg} \
+        --write_namelist \
+        --timeout "${timeout}"
 
     # Execute generated Hybpiper commands
     while read cmd_to_execute
       do
         eval "${cmd_to_execute}"
-      done < "${strDirectory}/cmdfile.txt"
+      done < "${workingDir}/cmdfile.txt"
 
     # move everything to proper location but before that remove the copies of the input files so they don't get copied with
-    rm -r ${rawReadsFile}
-    rm ${workingDir}/targetfile.fasta
-    cp -rf ${workingDir}/* ${strDirectory}/outputfile/
+    #rm -r ${rawReadsFile}
+    #rm ${workingDir}/targetfile.fasta
+    #cp -rf ${workingDir}/* ${strDirectory}/outputfile/
 
     # Zip the correct output files in the temporary directory
-    7z a ${strDirectory}/tempzip.zip ${strDirectory}/outputfile/*
+    7z a ${strDirectory}/tempzip.zip ${workingDir}/assemble/*
     # Copy the zip file to the galaxy data.dat
     cp ${strDirectory}/tempzip.zip ${outputzip}
 
     # Delete remaining temporary files
-    rm -rf ${strDirectory}
+    #rm -rf ${strDirectory}
 
-    ) > /home/galaxy/hybpiper_output_log.txt 2>&1 #> /dev/null 2>&1 #This will make sure nothing is written to stderr
+    ) 2> /home/galaxy/error.txt
 }
 
 # The main function.
@@ -91,17 +96,17 @@ while getopts ":r:o:t:f:e:i:m:x:vh" opt; do
             search_engine=${OPTARG}
             ;;
         i)
-            intronerate_bool=${OPTARG}
+            run_intronerate=${OPTARG}
             ;;
         m)
-            heatmap_bool=${OPTARG}
+            heatmap=${OPTARG}
             ;;
         x)
             timeout=${OPTARG}
             ;;
         v)
             echo ""
-            echo "hybpiper_galaxy.sh [1.1.9]"
+            echo "hybpiper_galaxy.sh [1.2.0]"
             echo ""
 
             exit
@@ -114,8 +119,8 @@ while getopts ":r:o:t:f:e:i:m:x:vh" opt; do
             echo "                 [-t TARGET_FILE_FASTA]             "
             echo "                 [-f TARGET_FORMAT]                 "
             echo "                 [-e MAPPING METHOD]                "
-            echo "                 [-i INTRONERATE_BOOL]              "
-            echo "                 [-m HEATMAP_BOOL]                  "
+            echo "                 [-i RUN_INTRONERATE]               "
+            echo "                 [-m HEATMAP]                       "
             echo "                 [-x TIME_OUT_INT]                  "
             echo ""
             echo "HybPiper was designed for targeted sequence capture,"
