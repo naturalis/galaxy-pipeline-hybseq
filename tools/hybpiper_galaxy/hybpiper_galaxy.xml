@@ -1,8 +1,7 @@
-<tool id="hybpiper" name="HybPiper Galaxy" version="1.1.9">
+<tool id="hybpiper" name="HybPiper Assemble" version="1.2.0">
 <!--<description>quality trim reads</description>-->
 <requirements>
-        <requirement type="package" version="3.9">python</requirement>
-        <requirement type="package">hybpiper</requirement>
+        <requirement type="package" version="2.1.6">hybpiper</requirement>
         <requirement type="package">blast</requirement>
         <requirement type="package">mafft</requirement>
         <requirement type="package">p7zip</requirement>
@@ -16,28 +15,29 @@
         -e ${search_method}
         -i ${run_intronerate_bool}
         -m ${create_heatmap_bool}
-	-x ${time_out}
+        -x ${time_out}
     ]]></command>
     <inputs>
         <!-- Catch the input files and optional flags. -->
-        <param name="reads" type="data" format="zip" label="Read files" />
+        <param name="reads" type="data" format="zip" label="Paired Read files" />
         <param name="targets" type="data" format="fasta" label="Target file" />
-        <param name="target_format" type="select" display="radio" label="Sequence Format" help="Sequence format of the target file">
+        <param name="target_format" type="select" display="radio" label="Target Sequence Format" help="Sequence format of the target file">
             <option value="DNA" selected="true">DNA</option>
             <option value="AA">Amino Acids</option>
         </param>
         <param name="search_method" type="select" display="radio" label="Which mapping method to use?" help="Changes which method Hybpiper uses for the mapping of the reads to the target sequences.">
-            <option value="default" selected="true">Default</option>
-            <option value="bwa">BWA</option>
+            <option value="blastx" selected="true">Default (BLASTx)</option>
+            <option value="bwa">BWA (target DNA only)</option>
             <option value="diamond">DIAMOND</option>
         </param>
-        <param name="run_intronerate_bool" type="boolean" label="Run Intronerate?" help="Run intronerate to recover fasta files for supercontigs with introns." checked="false" truevalue="y" falsevalue="n" />
+        <param name="run_intronerate_bool" type="boolean" label="Run Intronerate?" help="Run intronerate to recover fasta files for supercontigs with introns. Intronerate is enabled by default since Hybpiper v2.1.6" checked="true" truevalue="y" falsevalue="n" />
         <param name="create_heatmap_bool" type="boolean" label="Generate Heatmap?" help="Generate a heatmap of the gene recovery" checked="false" truevalue="y" falsevalue="n" />
-	<param name="time_out" type="integer" value="0" min="0" max="2000" label="Enter timeout % as a whole number, enter '0' for default" optional="true" />
+        <param name="time_out" type="integer" value="0" min="0" max="2000" label="Enter timeout % as a whole number, enter '0' for default" optional="true"
+        help="Kill long-running gene assemblies if they take longer than X percent of average"/>
     </inputs>
     <outputs>
         <!-- Catch the output file. -->
-        <data format="zip" type="data" name="output" label="Hybpiper Output" />
+        <data format="zip" type="data" name="output" label="hybiper_assemble_output.zip" />
     </outputs>
     <tests>
     </tests>
