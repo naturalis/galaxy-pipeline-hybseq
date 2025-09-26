@@ -1,0 +1,13 @@
+name: naturalis_hyb_seq
+owner:  luka
+description: "process Hybrid sequencing (Hyb-Seq) data" 
+long_description: |
+  "process Hybrid sequencing (Hyb-Seq) data".
+remote_repository_url: https://github.com/naturalis/galaxy-pipeline-hybseq.git
+homepage_url: https://github.com/naturalis/galaxy-pipeline-hybseq.git
+type: unrestricted
+categories:
+   - "Sequence Analysis"
+auto_tool_repositories:
+  name_template: naturalis_hyb_seq
+  description_template: naturalis_hyb_seq
